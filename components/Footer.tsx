@@ -8,9 +8,9 @@ export const Footer: React.FC = () => {
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
-             <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white font-bold">KC</div>
-                <span className="text-heading-3 tracking-tight font-bold text-brand-dark">KCnuts.</span>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white font-bold">KC</div>
+              <span className="text-heading-3 tracking-tight font-bold text-brand-dark">KCnuts.</span>
             </div>
             <p className="text-subtext-color text-body max-w-md mb-8">
               Bringing the finest harvest from Indian farms to every Indian home. We source sustainably and deliver quality you can trust.
@@ -62,12 +62,12 @@ export const Footer: React.FC = () => {
               &copy; {new Date().getFullYear()} KCnuts Dry Fruits. Made with love in India.
             </p>
             <span className="hidden md:block text-neutral-300">|</span>
-            <Link 
+            {/* <Link 
               to="/dashboard" 
               className="text-caption text-neutral-400 hover:text-brand transition-colors flex items-center gap-1 opacity-60 hover:opacity-100"
             >
               <Lock size={12} /> Admin Portal
-            </Link>
+            </Link> */}
           </div>
           <div className="flex items-center gap-2 text-caption text-subtext-color">
             <Mail size={14} />
