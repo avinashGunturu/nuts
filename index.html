@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KCnuts | Premium Dry Fruits</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                DEFAULT: '#2563EB', // Royal Blue
+                light: '#60A5FA', // Bright Blue
+                dark: '#1E3A8A', // Deep Navy
+                50: '#EFF6FF', // Ice Blue
+                100: '#DBEAFE',
+                vivid: '#3B82F6',
+              },
+              neutral: {
+                DEFAULT: '#64748B', // Slate 500
+                light: '#94A3B8', // Slate 400
+                dark: '#334155', // Slate 700
+                50: '#F8FAFC', // Slate 50
+                100: '#F1F5F9', // Slate 100
+                200: '#E2E8F0',
+                300: '#CBD5E1',
+                800: '#1E293B',
+                900: '#0F172A', // Rich Black
+              },
+              error: {
+                DEFAULT: '#EF4444',
+                light: '#F87171',
+                bg: '#FEF2F2',
+              },
+              success: {
+                DEFAULT: '#10B981',
+                light: '#34D399',
+                bg: '#ECFDF5',
+              },
+              warning: {
+                DEFAULT: '#F59E0B',
+                bg: '#FFFBEB',
+              },
+              'default-background': '#FFFFFF',
+              'subtext-color': '#475569', // Slate 600
+              'neutral-border': '#E2E8F0', // Slate 200
+            },
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+            },
+            fontSize: {
+              'caption': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+              'caption-bold': ['14px', { lineHeight: '20px', fontWeight: '700' }],
+              'body': ['18px', { lineHeight: '28px', fontWeight: '400' }], // Larger base size
+              'body-bold': ['18px', { lineHeight: '28px', fontWeight: '600' }],
+              'heading-3': ['28px', { lineHeight: '36px', fontWeight: '600', letterSpacing: '-0.02em' }],
+              'heading-2': ['42px', { lineHeight: '50px', fontWeight: '700', letterSpacing: '-0.03em' }],
+              'heading-1': ['64px', { lineHeight: '1.1', fontWeight: '700', letterSpacing: '-0.04em' }],
+              'monospace-body': ['15px', { lineHeight: '24px', fontWeight: '400', fontFamily: 'Outfit' }],
+            },
+            boxShadow: {
+              'default': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+              'overlay': '0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04)',
+              'glow': '0 0 20px rgba(37, 99, 235, 0.3)',
+            },
+            borderRadius: {
+              DEFAULT: '24px', 
+              'sm': '12px',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'fade-in-up': 'fadeInUp 0.7s ease-out',
+              'pulse-slow': 'pulse 3s infinite',
+              'marquee': 'marquee 50s linear infinite',
+              'marquee-reverse': 'marqueeReverse 50s linear infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-100%)' },
+              },
+              marqueeReverse: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(0)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      html { scroll-behavior: smooth; }
+      body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #F1F5F9; }
+      ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
+      /* Override browser autofill background */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover, 
+      input:-webkit-autofill:focus, 
+      input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px #F8FAFC inset !important;
+          -webkit-text-fill-color: #0F172A !important;
+          transition: background-color 5000s ease-in-out 0s;
+          caret-color: #0F172A;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.1/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.32.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@6.22.3",
+    "react-router": "https://aistudiocdn.com/react-router@6.22.3",
+    "@remix-run/router": "https://aistudiocdn.com/@remix-run/router@1.15.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-default-background text-neutral-900 font-sans antialiased selection:bg-brand-light selection:text-white">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
