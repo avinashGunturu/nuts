@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components/Layout';
@@ -32,50 +32,50 @@ import { AdminWholesaleRequests } from './pages/Dashboard/AdminWholesaleRequests
 import { AdminWholesaleDetails } from './pages/Dashboard/AdminWholesaleDetails';
 
 const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <CartProvider>
-         <HashRouter>
-            <Routes>
-               {/* Shop Routes */}
-               <Route path="/" element={<Layout />}>
-                  <Route index element={<Home />} />
-                  <Route path="shop" element={<Shop />} />
-                  <Route path="product/:id" element={<ProductDetails />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="contact" element={<Contact />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="corporate" element={<Corporate />} />
-                  <Route path="login" element={<Login />} />
-                  <Route path="signup" element={<Signup />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="orders" element={<Orders />} />
-               </Route>
+   return (
+      <AuthProvider>
+         <CartProvider>
+            <BrowserRouter>
+               <Routes>
+                  {/* Shop Routes */}
+                  <Route path="/" element={<Layout />}>
+                     <Route index element={<Home />} />
+                     <Route path="shop" element={<Shop />} />
+                     <Route path="product/:id" element={<ProductDetails />} />
+                     <Route path="about" element={<About />} />
+                     <Route path="contact" element={<Contact />} />
+                     <Route path="checkout" element={<Checkout />} />
+                     <Route path="corporate" element={<Corporate />} />
+                     <Route path="login" element={<Login />} />
+                     <Route path="signup" element={<Signup />} />
+                     <Route path="profile" element={<Profile />} />
+                     <Route path="orders" element={<Orders />} />
+                  </Route>
 
-               {/* Admin Portal Routes */}
-               <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<DashboardOverview />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="products/add" element={<AddProduct />} />
-                  <Route path="products/edit/:id" element={<EditProduct />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="orders/:id" element={<AdminOrderDetails />} />
-                  <Route path="transactions" element={<AdminTransactions />} />
-                  <Route path="customers" element={<AdminCustomers />} />
-                  <Route path="customers/:id" element={<AdminCustomerDetails />} />
-                  <Route path="contact-requests" element={<AdminContactRequests />} />
-                  <Route path="wholesale-requests" element={<AdminWholesaleRequests />} />
-                  <Route path="wholesale-requests/:id" element={<AdminWholesaleDetails />} />
-                  
-                  {/* Other Dashboard Sub-routes */}
-                  <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
-                  <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
-               </Route>
-            </Routes>
-         </HashRouter>
-      </CartProvider>
-    </AuthProvider>
-  );
+                  {/* Admin Portal Routes */}
+                  <Route path="/dashboard" element={<DashboardLayout />}>
+                     <Route index element={<DashboardOverview />} />
+                     <Route path="products" element={<AdminProducts />} />
+                     <Route path="products/add" element={<AddProduct />} />
+                     <Route path="products/edit/:id" element={<EditProduct />} />
+                     <Route path="orders" element={<AdminOrders />} />
+                     <Route path="orders/:id" element={<AdminOrderDetails />} />
+                     <Route path="transactions" element={<AdminTransactions />} />
+                     <Route path="customers" element={<AdminCustomers />} />
+                     <Route path="customers/:id" element={<AdminCustomerDetails />} />
+                     <Route path="contact-requests" element={<AdminContactRequests />} />
+                     <Route path="wholesale-requests" element={<AdminWholesaleRequests />} />
+                     <Route path="wholesale-requests/:id" element={<AdminWholesaleDetails />} />
+
+                     {/* Other Dashboard Sub-routes */}
+                     <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
+                     <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
+                  </Route>
+               </Routes>
+            </BrowserRouter>
+         </CartProvider>
+      </AuthProvider>
+   );
 };
 
 export default App;
