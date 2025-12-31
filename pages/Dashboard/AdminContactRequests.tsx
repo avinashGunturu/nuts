@@ -19,6 +19,7 @@ import {
 import { Button } from '../../components/Button';
 import {
    fetchContactRequests,
+   updateContactStatus,
    ContactRequestItem,
    ContactListResponse
 } from '../../services/contactService';
@@ -71,13 +72,24 @@ export const AdminContactRequests: React.FC = () => {
       setPage(1);
    }, [searchTerm, statusFilter]);
 
-   const handleResolve = (id: string) => {
-      // Optimistic update - in real app would call API first
-      setRequests(prev => prev.map(req =>
-         req._id === id ? { ...req, status: 'resolved' } : req
-      ));
-      if (selectedRequest?._id === id) {
-         setSelectedRequest(prev => prev ? { ...prev, status: 'resolved' } : null);
+   const handleResolve = async (id: string) => {
+      try {
+         // Optimistic update
+         setRequests(prev => prev.map(req =>
+            req._id === id ? { ...req, status: 'resolved' } : req
+         ));
+         if (selectedRequest?._id === id) {
+            setSelectedRequest(prev => prev ? { ...prev, status: 'resolved' } : null);
+         }
+
+         await updateContactStatus(id, 'resolved');
+      } catch (err) {
+         console.error('Failed to update status:', err);
+         // Revert on error (optional, but good practice)
+         // For now, just showing error
+         setError('Failed to update status');
+         // Revert optimistic update
+         loadRequests();
       }
    };
 

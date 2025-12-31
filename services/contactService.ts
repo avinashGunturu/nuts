@@ -61,7 +61,7 @@ export interface ContactRequestItem {
     orderId?: string;
     topic: string;
     message: string;
-    status: 'new' | 'resolved';
+    status: 'new' | 'read' | 'replied' | 'resolved';
     createdAt: string;
     updatedAt: string;
 }
@@ -107,6 +107,34 @@ export const fetchContactRequests = async (filters: ContactFilterPayload): Promi
 
         if (!response.ok) {
             throw new Error(result.message || 'Failed to fetch contact requests');
+        }
+
+        return result;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred');
+    }
+};
+
+export const updateContactStatus = async (id: string, status: string): Promise<ContactResponse> => {
+    const token = getAuthToken();
+
+    try {
+        const response = await fetch(`${API_URL}/${id}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ status }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to update status');
         }
 
         return result;
