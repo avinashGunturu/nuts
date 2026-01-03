@@ -3,5 +3,8 @@ export const API_CONFIG = {
     ENDPOINTS: {
         CONTACT: '/contact',
         CONTACT_FILTER: '/contact/filter',
+        PRODUCTS: '/products',
+        PRODUCTS_LIST: '/products/list',
+        UPLOAD: '/upload',
     }
 };

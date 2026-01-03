@@ -24,7 +24,6 @@ import { DashboardLayout } from './components/Dashboard/DashboardLayout';
 import { DashboardOverview } from './pages/Dashboard/Overview';
 import { AdminProducts } from './pages/Dashboard/Products';
 import { AddProduct } from './pages/Dashboard/AddProduct';
-import { EditProduct } from './pages/Dashboard/EditProduct';
 import { AdminOrders } from './pages/Dashboard/AdminOrders';
 import { AdminOrderDetails } from './pages/Dashboard/AdminOrderDetails';
 import { AdminTransactions } from './pages/Dashboard/AdminTransactions';
@@ -64,7 +63,7 @@ const App: React.FC = () => {
                         <Route index element={<DashboardOverview />} />
                         <Route path="products" element={<AdminProducts />} />
                         <Route path="products/add" element={<AddProduct />} />
-                        <Route path="products/edit/:id" element={<EditProduct />} />
+                        <Route path="products/edit/:id" element={<AddProduct />} />
                         <Route path="orders" element={<AdminOrders />} />
                         <Route path="orders/:id" element={<AdminOrderDetails />} />
                         <Route path="transactions" element={<AdminTransactions />} />
