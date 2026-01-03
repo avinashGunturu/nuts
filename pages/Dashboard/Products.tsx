@@ -117,6 +117,8 @@ export const AdminProducts: React.FC = () => {
          setIsDeleting(true);
          const result = await productService.deleteProduct(id);
          if (result.success) {
+            // Invalidate the shop page cache after deletion
+            productService.invalidateProductCache();
             setIsDeleting(false);
             setModalConfig({
                isOpen: true,

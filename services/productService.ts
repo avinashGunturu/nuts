@@ -1,5 +1,10 @@
 import { API_CONFIG } from '../config';
 
+// Cache configuration
+const CACHE_KEY = 'KC_PRODUCTS_CACHE';
+const CACHE_EXPIRY_KEY = 'KC_PRODUCTS_CACHE_EXPIRY';
+const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
 const getAuthToken = () => {
     const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
     if (match) return match[2];
@@ -155,5 +160,77 @@ export const productService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    // Public method for shop page - with caching
+    getPublicProducts: async (filters?: { category?: string; search?: string }) => {
+        try {
+            // Check sessionStorage cache first
+            const cachedData = sessionStorage.getItem(CACHE_KEY);
+            const cacheExpiry = sessionStorage.getItem(CACHE_EXPIRY_KEY);
+
+            if (cachedData && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+                console.log('[ProductCache] Cache hit - returning cached products');
+                return JSON.parse(cachedData);
+            }
+
+            console.log('[ProductCache] Cache miss - fetching from API');
+
+            // Cache miss or expired - fetch from API
+            const queryParams = new URLSearchParams();
+            if (filters?.category && filters.category !== 'All') {
+                queryParams.append('category', filters.category);
+            }
+            if (filters?.search) {
+                queryParams.append('search', filters.search);
+            }
+
+            const queryString = queryParams.toString();
+            const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.PRODUCTS}${queryString ? '?' + queryString : ''}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to fetch products');
+            }
+
+            // Store in sessionStorage with expiry timestamp
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(result.data));
+            sessionStorage.setItem(CACHE_EXPIRY_KEY, String(Date.now() + CACHE_DURATION_MS));
+
+            return result.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    // Find a product from cache by ID (for product details page)
+    getProductFromCache: (productId: string): any | null => {
+        const cachedData = sessionStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+            try {
+                const products = JSON.parse(cachedData);
+                const found = products.find((p: any) => p._id === productId || p.id === productId);
+                if (found) {
+                    console.log('[ProductCache] Found product in cache:', productId);
+                    return found;
+                }
+            } catch (e) {
+                console.error('[ProductCache] Error parsing cache:', e);
+            }
+        }
+        console.log('[ProductCache] Product not in cache:', productId);
+        return null;
+    },
+
+    // Invalidate cache - call after product create/update/delete
+    invalidateProductCache: () => {
+        console.log('[ProductCache] Cache invalidated');
+        sessionStorage.removeItem(CACHE_KEY);
+        sessionStorage.removeItem(CACHE_EXPIRY_KEY);
     }
 };

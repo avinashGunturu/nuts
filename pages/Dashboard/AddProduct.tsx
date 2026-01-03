@@ -290,6 +290,8 @@ export const AddProduct: React.FC = () => {
 
          if (isEditMode && id) {
             await productService.updateProduct(id, payload);
+            // Invalidate the shop page cache after update
+            productService.invalidateProductCache();
             setModalConfig({
                isOpen: true,
                title: 'Success!',
@@ -299,6 +301,8 @@ export const AddProduct: React.FC = () => {
             });
          } else {
             await productService.createProduct(payload);
+            // Invalidate the shop page cache after creation
+            productService.invalidateProductCache();
             setModalConfig({
                isOpen: true,
                title: 'Success!',
