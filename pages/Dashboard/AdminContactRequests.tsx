@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import {
    Search,
@@ -11,10 +10,9 @@ import {
    Eye,
    ChevronLeft,
    ChevronRight,
-   MoreVertical,
-   Filter,
-   Trash2,
-   Reply
+   Download,
+   Reply,
+   User
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import {
@@ -63,57 +61,66 @@ export const AdminContactRequests: React.FC = () => {
    useEffect(() => {
       const timer = setTimeout(() => {
          loadRequests();
-      }, 500); // Debounce search
+      }, 500);
       return () => clearTimeout(timer);
    }, [loadRequests]);
 
-   // Reset page when filters change
    useEffect(() => {
       setPage(1);
    }, [searchTerm, statusFilter]);
 
    const handleResolve = async (id: string) => {
       try {
-         // Optimistic update
          setRequests(prev => prev.map(req =>
             req._id === id ? { ...req, status: 'resolved' } : req
          ));
          if (selectedRequest?._id === id) {
             setSelectedRequest(prev => prev ? { ...prev, status: 'resolved' } : null);
          }
-
          await updateContactStatus(id, 'resolved');
       } catch (err) {
          console.error('Failed to update status:', err);
-         // Revert on error (optional, but good practice)
-         // For now, just showing error
          setError('Failed to update status');
-         // Revert optimistic update
          loadRequests();
       }
    };
 
-   const handleDelete = (id: string) => {
-      // Optimistic delete
-      setRequests(prev => prev.filter(req => req._id !== id));
-      setSelectedRequest(null);
-   };
+   const statuses = ['All', 'New', 'Resolved'] as const;
 
    return (
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-6 animate-fade-in pb-10">
          {/* Header */}
          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-               <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 tracking-tight">Customer Messages</h1>
-               <p className="text-neutral-500 mt-2 font-medium text-sm md:text-base">Manage inquiries and support requests from the Contact page.</p>
+               <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Contact Requests</h1>
+               <p className="text-neutral-500 mt-1 font-medium text-sm">Manage inquiries and support requests.</p>
             </div>
-            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-               <div className="bg-neutral-100 p-1.5 rounded-2xl flex items-center gap-1 min-w-max">
-                  {(['All', 'New', 'Resolved'] as const).map(status => (
+            <div className="flex gap-3">
+               <Button variant="outline" size="sm" className="bg-white gap-2">
+                  <Download size={16} /> Export
+               </Button>
+            </div>
+         </div>
+
+         {/* Filters Bar */}
+         <div className="bg-white p-4 rounded-3xl border border-neutral-100 shadow-sm flex flex-col md:flex-row justify-between gap-4">
+            <div className="relative flex-1 max-w-md">
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+               <input
+                  type="text"
+                  placeholder="Search by Name, Email, Topic..."
+                  className="w-full pl-12 pr-4 py-2.5 rounded-xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+               />
+            </div>
+            <div className="flex gap-3 items-center">
+               <div className="bg-neutral-100 p-1 rounded-xl flex gap-1">
+                  {statuses.map(status => (
                      <button
                         key={status}
                         onClick={() => setStatusFilter(status)}
-                        className={`px-4 md:px-6 py-2 rounded-xl text-xs font-bold transition-all ${statusFilter === status
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${statusFilter === status
                            ? 'bg-white text-neutral-900 shadow-sm'
                            : 'text-neutral-500 hover:text-neutral-900'
                            }`}
@@ -125,23 +132,6 @@ export const AdminContactRequests: React.FC = () => {
             </div>
          </div>
 
-         {/* Search & Filters */}
-         <div className="bg-white p-4 md:p-6 rounded-[24px] md:rounded-[32px] border border-neutral-100 shadow-sm flex flex-col md:flex-row justify-between gap-4">
-            <div className="relative flex-1 w-full max-w-md">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
-               <input
-                  type="text"
-                  placeholder="Search by Customer, Email, ID..."
-                  className="w-full pl-12 pr-4 py-3 rounded-2xl bg-neutral-50 border border-neutral-100 focus:bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-sm font-medium"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-               />
-            </div>
-            <Button variant="outline" size="sm" className="bg-white gap-2 w-full md:w-auto justify-center">
-               <Filter size={16} /> Advanced Filters
-            </Button>
-         </div>
-
          {/* Error Message */}
          {error && (
             <div className="p-4 bg-error/10 text-error rounded-2xl text-center">
@@ -149,97 +139,103 @@ export const AdminContactRequests: React.FC = () => {
             </div>
          )}
 
-         {/* List Table */}
-         <div className="bg-white rounded-[24px] md:rounded-[40px] border border-neutral-100 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-neutral-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-neutral-300">
-               <table className="w-full text-left">
-                  <thead>
-                     <tr className="bg-neutral-50/50">
-                        <th className="px-4 md:px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer Info</th>
-                        <th className="px-4 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Inquiry Type</th>
-                        <th className="px-4 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Preview</th>
-                        <th className="px-4 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date Received</th>
-                        <th className="px-4 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
-                        <th className="px-4 md:px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Actions</th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-50">
-                     {isLoading ? (
-                        <tr>
-                           <td colSpan={6} className="px-10 py-12 text-center text-neutral-500">Loading requests...</td>
-                        </tr>
-                     ) : requests.length === 0 ? (
-                        <tr>
-                           <td colSpan={6} className="px-10 py-12 text-center text-neutral-500">No requests found.</td>
-                        </tr>
-                     ) : (
-                        requests.map((req) => (
-                           <tr key={req._id} className="hover:bg-neutral-50/50 transition-colors group">
-                              <td className="px-4 md:px-6 py-6">
-                                 <div>
-                                    <span className="text-sm font-bold text-neutral-900 block truncate max-w-[120px]">{req.name}</span>
-                                    <span className="text-xs text-neutral-500 font-medium truncate max-w-[150px] block">{req.email}</span>
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <span className="px-3 py-1.5 bg-neutral-100 rounded-lg text-[10px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">
-                                    {req.topic}
-                                 </span>
-                              </td>
-                              <td className="px-4 py-6 max-w-[12rem]">
-                                 <p className="text-sm text-neutral-600 line-clamp-1 font-medium italic truncate">
-                                    "{req.message}"
-                                 </p>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <div className="flex items-center gap-2 text-xs font-bold text-neutral-400 uppercase tracking-tight whitespace-nowrap">
-                                    <Clock size={12} /> {new Date(req.createdAt).toLocaleDateString()}
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest whitespace-nowrap ${req.status === 'new' ? 'bg-brand-50 text-brand' : 'bg-success-bg text-success'
-                                    }`}>
-                                    {req.status}
-                                 </span>
-                              </td>
-                              <td className="px-4 md:px-6 py-6 text-right">
-                                 <button
-                                    onClick={() => setSelectedRequest(req)}
-                                    className="w-10 h-10 rounded-xl bg-neutral-50 text-neutral-400 hover:text-brand hover:bg-brand-50 flex items-center justify-center transition-all inline-flex"
-                                 >
-                                    <Eye size={18} />
-                                 </button>
-                              </td>
-                           </tr>
-                        ))
-                     )}
-                  </tbody>
-               </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="px-6 md:px-10 py-8 bg-neutral-50/50 flex flex-col sm:flex-row justify-between items-center gap-6">
-               <p className="text-sm text-neutral-500 font-medium text-center sm:text-left">
-                  Showing <span className="text-neutral-900 font-bold">{requests.length}</span> of <span className="text-neutral-900 font-bold">{totalItems}</span> messages
-               </p>
-               <div className="flex items-center gap-4">
-                  <button
-                     disabled={page === 1}
-                     onClick={() => setPage(p => Math.max(1, p - 1))}
-                     className="p-2 rounded-xl border border-neutral-200 bg-white text-neutral-400 hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                     <ChevronLeft size={20} />
-                  </button>
-                  <span className="text-sm font-bold text-neutral-600">Page {page} of {Math.max(1, totalPages)}</span>
-                  <button
-                     disabled={page === totalPages}
-                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                     className="p-2 rounded-xl border border-neutral-200 bg-white text-neutral-400 hover:text-brand transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                     <ChevronRight size={20} />
-                  </button>
+         {/* Table Container */}
+         <div className="bg-white rounded-3xl border border-neutral-100 shadow-sm overflow-hidden flex flex-col" style={{ minHeight: '450px' }}>
+            {isLoading ? (
+               <div className="flex flex-col items-center justify-center p-20 text-neutral-400 flex-1">
+                  <div className="w-8 h-8 border-4 border-brand/20 border-t-brand rounded-full animate-spin mb-4"></div>
+                  <p className="text-sm font-medium">Loading requests...</p>
                </div>
-            </div>
+            ) : requests.length === 0 ? (
+               <div className="p-20 text-center text-neutral-400 flex-1 flex items-center justify-center">No requests found.</div>
+            ) : (
+               <div className="flex flex-col flex-1">
+                  <div className="overflow-x-auto flex-1">
+                     <table className="w-full text-left table-fixed">
+                        <thead>
+                           <tr className="bg-neutral-50/50 border-b border-neutral-100">
+                              <th className="w-[22%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Customer Info</th>
+                              <th className="w-[15%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Topic</th>
+                              <th className="w-[30%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Message Preview</th>
+                              <th className="w-[13%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Date Rec.</th>
+                              <th className="w-[12%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Status</th>
+                              <th className="w-[8%] px-3 py-3 text-[10px] font-bold text-neutral-400 uppercase tracking-widest text-center">Action</th>
+                           </tr>
+                        </thead>
+                        <tbody className="divide-y divide-neutral-50">
+                           {requests.map((req) => (
+                              <tr key={req._id} className="hover:bg-neutral-50/50 transition-colors group">
+                                 <td className="px-3 py-3">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                       <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                          <User size={16} />
+                                       </div>
+                                       <div className="min-w-0 flex-1">
+                                          <span className="text-sm font-bold text-neutral-900 block truncate">{req.name}</span>
+                                          <span className="text-[10px] text-neutral-400 font-medium block truncate" title={req.email}>{req.email}</span>
+                                       </div>
+                                    </div>
+                                 </td>
+                                 <td className="px-3 py-3">
+                                    <span className="px-2 py-1 bg-neutral-100 rounded-md text-[10px] font-bold uppercase tracking-wider text-neutral-500 inline-block truncate max-w-full">
+                                       {req.topic}
+                                    </span>
+                                 </td>
+                                 <td className="px-3 py-3">
+                                    <p className="text-xs text-neutral-600 truncate" title={req.message}>{req.message}</p>
+                                 </td>
+                                 <td className="px-3 py-3 text-xs text-neutral-500 font-bold whitespace-nowrap">
+                                    {new Date(req.createdAt).toLocaleDateString('en-GB')}
+                                 </td>
+                                 <td className="px-3 py-3">
+                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-block ${req.status === 'resolved' ? 'bg-green-50 text-green-600' :
+                                          req.status === 'new' ? 'bg-blue-50 text-blue-600' :
+                                             'bg-neutral-100 text-neutral-500'
+                                       }`}>
+                                       {req.status}
+                                    </span>
+                                 </td>
+                                 <td className="px-3 py-3 text-center">
+                                    <button
+                                       onClick={() => setSelectedRequest(req)}
+                                       className="w-7 h-7 rounded-lg bg-white border border-neutral-200 text-neutral-400 hover:text-blue-600 hover:border-blue-100 flex items-center justify-center transition-all mx-auto"
+                                    >
+                                       <Eye size={14} />
+                                    </button>
+                                 </td>
+                              </tr>
+                           ))}
+                        </tbody>
+                     </table>
+                  </div>
+
+                  {/* Table Footer - Pagination & Total Records */}
+                  <div className="px-6 py-4 border-t border-neutral-100 flex justify-between items-center">
+                     <p className="text-sm text-neutral-500">
+                        Showing <span className="font-semibold text-neutral-800">{requests.length}</span> of <span className="font-semibold text-neutral-800">{totalItems}</span> messages
+                     </p>
+                     <div className="flex items-center gap-2">
+                        <button
+                           disabled={page === 1}
+                           onClick={() => setPage(p => Math.max(1, p - 1))}
+                           className="w-8 h-8 rounded-lg border border-neutral-200 bg-white text-neutral-400 hover:text-neutral-700 hover:border-neutral-300 transition-all flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                           <ChevronLeft size={18} />
+                        </button>
+                        <span className="text-sm text-neutral-600 px-2">
+                           Page <span className="font-semibold text-neutral-800">{page}</span> of <span className="font-semibold text-neutral-800">{Math.max(1, totalPages)}</span>
+                        </span>
+                        <button
+                           disabled={page === totalPages}
+                           onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                           className="w-8 h-8 rounded-lg border border-neutral-200 bg-white text-neutral-400 hover:text-neutral-700 hover:border-neutral-300 transition-all flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                           <ChevronRight size={18} />
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            )}
          </div>
 
          {/* Detail Modal */}
@@ -307,14 +303,6 @@ export const AdminContactRequests: React.FC = () => {
                         <Button variant="outline" className="flex-1 gap-2 py-4 border-neutral-200 justify-center">
                            <Reply size={18} /> Reply via Email
                         </Button>
-                        {/* <button 
-                      onClick={() => handleDelete(selectedRequest._id)}
-                      className="h-14 sm:w-14 rounded-2xl bg-error-bg text-error flex items-center justify-center hover:bg-error hover:text-white transition-all shadow-sm"
-                      title="Delete Request"
-                    >
-                       <Trash2 size={20} />
-                       <span className="sm:hidden ml-2 font-bold">Delete</span>
-                    </button> */}
                      </div>
                   </div>
                </div>
@@ -323,4 +311,3 @@ export const AdminContactRequests: React.FC = () => {
       </div>
    );
 };
-
