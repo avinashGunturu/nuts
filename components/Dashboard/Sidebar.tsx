@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Users, 
-  Box, 
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Users,
+  Box,
   LogOut,
   ChevronRight,
   CreditCard,
@@ -25,6 +26,13 @@ const NAV_ITEMS = [
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/adminportal/login');
+  };
 
   return (
     <aside className="w-72 bg-white border-r border-neutral-100 h-screen flex flex-col sticky top-0">
@@ -47,11 +55,10 @@ export const Sidebar: React.FC = () => {
             <Link
               key={item.label}
               to={item.path}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group ${
-                isActive 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
-                : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
-              }`}
+              className={`flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group ${isActive
+                  ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                  : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <item.icon size={20} className={isActive ? 'text-white' : 'text-neutral-400 group-hover:text-brand'} />
@@ -66,7 +73,10 @@ export const Sidebar: React.FC = () => {
       {/* Account Actions Section */}
       <div className="px-4 py-8 space-y-1 border-t border-neutral-50">
         <p className="px-4 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Session</p>
-        <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-error hover:bg-error-bg transition-all duration-300 group">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-error hover:bg-error-bg transition-all duration-300 group"
+        >
           <LogOut size={20} />
           <span className="font-bold text-sm uppercase tracking-wider">Sign Out</span>
         </button>
@@ -79,8 +89,10 @@ export const Sidebar: React.FC = () => {
             A
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-neutral-900 truncate">Admin User</p>
-            <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">Super Admin</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-neutral-900 truncate">{user?.name || 'Admin User'}</p>
+              <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">{user?.role || 'Admin'}</p>
+            </div>
           </div>
         </div>
       </div>

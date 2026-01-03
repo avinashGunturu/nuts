@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getMe, User as AuthUser } from '../services/authService';
 
 interface Address {
   id: string;
@@ -10,11 +11,8 @@ interface Address {
   isDefault: boolean;
 }
 
-interface User {
-  name: string;
-  email: string;
-  phone: string;
-}
+// Extend or alias the User from authService
+export type User = AuthUser;
 
 interface AuthContextType {
   user: User | null;
@@ -22,9 +20,11 @@ interface AuthContextType {
   login: (userData: User) => void;
   logout: () => void;
   updateProfile: (userData: User) => void;
+  fetchUserProfile: () => Promise<void>;
   addAddress: (address: Omit<Address, 'id'>) => void;
   deleteAddress: (id: string) => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,18 +32,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Initial load
   useEffect(() => {
-    const savedUser = localStorage.getItem('kcnuts_user');
-    const savedAddresses = localStorage.getItem('kcnuts_addresses');
-    if (savedUser) setUser(JSON.parse(savedUser));
-    if (savedAddresses) setAddresses(JSON.parse(savedAddresses));
+    const initAuth = async () => {
+      setIsLoading(true);
+      try {
+        await fetchUserProfile();
+      } catch (error) {
+        // No active session or invalid token, that's fine
+      } finally {
+        setIsLoading(false);
+      }
+
+      const savedAddresses = localStorage.getItem('kcnuts_addresses');
+      if (savedAddresses) setAddresses(JSON.parse(savedAddresses));
+    };
+
+    initAuth();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const userData = await getMe();
+      setUser(userData);
+      localStorage.setItem('kcnuts_user', JSON.stringify(userData));
+    } catch (error) {
+      setUser(null);
+      localStorage.removeItem('kcnuts_user');
+      throw error;
+    }
+  };
 
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem('kcnuts_user', JSON.stringify(userData));
-    // Set some mock addresses if none exist for a new "login" demo
+    // Set some mock addresses if none exist for a new "login" demo (Legacy logic kept for compatibility)
     if (addresses.length === 0) {
       const mockAddress = {
         id: '1',
@@ -62,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('kcnuts_user');
+    document.cookie = 'Authorization=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   };
 
   const updateProfile = (userData: User) => {
@@ -83,15 +109,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      addresses, 
-      login, 
-      logout, 
-      updateProfile, 
-      addAddress, 
+    <AuthContext.Provider value={{
+      user,
+      addresses,
+      login,
+      logout,
+      updateProfile,
+      fetchUserProfile,
+      addAddress,
       deleteAddress,
-      isAuthenticated: !!user 
+      isAuthenticated: !!user,
+      isLoading
     }}>
       {children}
     </AuthContext.Provider>

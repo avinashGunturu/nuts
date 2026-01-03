@@ -22,6 +22,8 @@ export const Login: React.FC = () => {
     setTimeout(() => {
       if (email && password.length >= 6) {
         login({
+          _id: 'mock-customer-id',
+          role: 'customer',
           name: 'Rajesh Sharma',
           email: email,
           phone: '+91 9876543210'
@@ -39,14 +41,14 @@ export const Login: React.FC = () => {
       {/* Left side: Visuals (Hidden on mobile) */}
       <div className="hidden md:flex md:w-1/2 bg-neutral-900 relative items-center justify-center overflow-hidden p-12 pt-32 lg:p-20 lg:pt-40">
         <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1596328330761-46820572d421?q=80&w=1200&auto=format&fit=crop" 
+          <img
+            src="https://images.unsplash.com/photo-1596328330761-46820572d421?q=80&w=1200&auto=format&fit=crop"
             className="w-full h-full object-cover opacity-40 scale-110 animate-pulse-slow"
             alt="Premium harvest"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/40 to-transparent" />
         </div>
-        
+
         <div className="relative z-10 px-12 lg:px-20 text-white max-w-xl">
           <div className="w-16 h-1 bg-brand-light mb-8 rounded-full" />
           <h2 className="text-5xl lg:text-7xl font-bold leading-tight mb-8 tracking-tight">
@@ -55,7 +57,7 @@ export const Login: React.FC = () => {
           <p className="text-xl text-neutral-300 font-light leading-relaxed mb-12">
             Sign in to access your curated selection of the world's finest dry fruits and nuts, delivered with love.
           </p>
-          
+
           <div className="flex items-center gap-6">
             <div className="flex -space-x-3">
               {[1, 2, 3, 4].map((i) => (
@@ -107,8 +109,8 @@ export const Login: React.FC = () => {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
                   <Mail size={20} />
                 </div>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900"
@@ -127,15 +129,15 @@ export const Login: React.FC = () => {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
                   <Lock size={20} />
                 </div>
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-12 pr-14 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900"
                   placeholder="••••••••"
                   required
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-brand transition-colors p-1"
@@ -160,7 +162,7 @@ export const Login: React.FC = () => {
                 <span className="bg-white px-4 text-neutral-400 font-bold">New to the Circle?</span>
               </div>
             </div>
-            
+
             <Link to="/signup">
               <Button variant="outline" className="w-full py-4 border-2 border-neutral-100 hover:bg-neutral-50">
                 Create Account

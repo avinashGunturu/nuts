@@ -12,9 +12,12 @@ import { Contact } from './pages/Contact';
 import { Checkout } from './pages/Checkout';
 import { Corporate } from './pages/Corporate';
 import { Login } from './pages/Login';
+import { AdminLogin } from './pages/AdminLogin';
 import { Signup } from './pages/Signup';
 import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
+import { AccessDenied } from './pages/AccessDenied';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Dashboard Components
 import { DashboardLayout } from './components/Dashboard/DashboardLayout';
@@ -38,6 +41,7 @@ const App: React.FC = () => {
             <BrowserRouter>
                <Routes>
                   {/* Shop Routes */}
+                  <Route path="/adminportal/login" element={<AdminLogin />} />
                   <Route path="/" element={<Layout />}>
                      <Route index element={<Home />} />
                      <Route path="shop" element={<Shop />} />
@@ -53,23 +57,27 @@ const App: React.FC = () => {
                   </Route>
 
                   {/* Admin Portal Routes */}
-                  <Route path="/dashboard" element={<DashboardLayout />}>
-                     <Route index element={<DashboardOverview />} />
-                     <Route path="products" element={<AdminProducts />} />
-                     <Route path="products/add" element={<AddProduct />} />
-                     <Route path="products/edit/:id" element={<EditProduct />} />
-                     <Route path="orders" element={<AdminOrders />} />
-                     <Route path="orders/:id" element={<AdminOrderDetails />} />
-                     <Route path="transactions" element={<AdminTransactions />} />
-                     <Route path="customers" element={<AdminCustomers />} />
-                     <Route path="customers/:id" element={<AdminCustomerDetails />} />
-                     <Route path="contact-requests" element={<AdminContactRequests />} />
-                     <Route path="wholesale-requests" element={<AdminWholesaleRequests />} />
-                     <Route path="wholesale-requests/:id" element={<AdminWholesaleDetails />} />
+                  <Route path="/access-denied" element={<AccessDenied />} />
 
-                     {/* Other Dashboard Sub-routes */}
-                     <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
-                     <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
+                  <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                     <Route path="/dashboard" element={<DashboardLayout />}>
+                        <Route index element={<DashboardOverview />} />
+                        <Route path="products" element={<AdminProducts />} />
+                        <Route path="products/add" element={<AddProduct />} />
+                        <Route path="products/edit/:id" element={<EditProduct />} />
+                        <Route path="orders" element={<AdminOrders />} />
+                        <Route path="orders/:id" element={<AdminOrderDetails />} />
+                        <Route path="transactions" element={<AdminTransactions />} />
+                        <Route path="customers" element={<AdminCustomers />} />
+                        <Route path="customers/:id" element={<AdminCustomerDetails />} />
+                        <Route path="contact-requests" element={<AdminContactRequests />} />
+                        <Route path="wholesale-requests" element={<AdminWholesaleRequests />} />
+                        <Route path="wholesale-requests/:id" element={<AdminWholesaleDetails />} />
+
+                        {/* Other Dashboard Sub-routes */}
+                        <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
+                        <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
+                     </Route>
                   </Route>
                </Routes>
             </BrowserRouter>
