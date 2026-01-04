@@ -20,4 +20,5 @@ export interface CartItem extends Product {
   quantity: number;
   selectedWeight: string;
   calculatedPrice: number; // Price for the specific weight unit
+  variantId?: string; // ID of the selected variant for checkout
 }

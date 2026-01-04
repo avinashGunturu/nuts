@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Product, CartItem } from '../types';
+import { saveCartToServer, getCartFromServer, clearCartOnServer } from '../services/cartService';
 
 interface CartContextType {
   cart: CartItem[];
@@ -12,6 +13,8 @@ interface CartContextType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  syncCartFromServer: () => Promise<{ restored: boolean; itemCount: number }>;
+  isSyncing: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -63,9 +66,18 @@ const getProductPriceAndWeight = (product: any, selectedWeight: string): { price
   return { price: product.price || 0, weight: product.weight || '500g' };
 };
 
+// Check if user is authenticated
+const isAuthenticated = (): boolean => {
+  const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
+  return !!match;
+};
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
 
   // Load cart from local storage on mount
   useEffect(() => {
@@ -79,27 +91,117 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Save cart to local storage on change
+  // Save cart to local storage and sync to server (debounced)
   useEffect(() => {
     localStorage.setItem('kcnuts_cart', JSON.stringify(cart));
+
+    // Skip sync on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // Debounced sync to server for logged-in users
+    if (isAuthenticated() && cart.length >= 0) {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+
+      syncTimeoutRef.current = setTimeout(async () => {
+        try {
+          await saveCartToServer(cart);
+          console.log('[Cart] Synced to server');
+        } catch (error) {
+          console.error('[Cart] Sync failed:', error);
+        }
+      }, 1500); // Debounce: wait 1.5s after last change
+    }
+
+    return () => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, [cart]);
+
+  // Sync cart from server (called on login)
+  const syncCartFromServer = useCallback(async (): Promise<{ restored: boolean; itemCount: number }> => {
+    if (!isAuthenticated()) {
+      return { restored: false, itemCount: 0 };
+    }
+
+    setIsSyncing(true);
+    try {
+      const serverCart = await getCartFromServer();
+
+      if (serverCart.items && serverCart.items.length > 0) {
+        // Convert server items to CartItem format
+        const restoredItems: CartItem[] = serverCart.items.map((item: any) => ({
+          id: item.productId,
+          name: item.name || 'Product',
+          price: item.price,
+          weight: item.weight || '500g',
+          image: item.image || '',
+          category: '',
+          rating: 0,
+          description: '',
+          quantity: item.quantity,
+          selectedWeight: item.weight || '500g',
+          calculatedPrice: item.price,
+          variantId: item.variantId
+        }));
+
+        // Merge strategy: If local cart is empty, use server cart
+        // If both have items, prefer local cart but notify user
+        if (cart.length === 0) {
+          setCart(restoredItems);
+          return { restored: true, itemCount: restoredItems.length };
+        } else {
+          // Local cart has items - keep local, but save to server
+          await saveCartToServer(cart);
+          return { restored: false, itemCount: cart.length };
+        }
+      }
+
+      return { restored: false, itemCount: 0 };
+    } catch (error) {
+      console.error('[Cart] Failed to sync from server:', error);
+      return { restored: false, itemCount: 0 };
+    } finally {
+      setIsSyncing(false);
+    }
   }, [cart]);
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
-  const clearCart = () => setCart([]);
+
+  const clearCart = async () => {
+    setCart([]);
+    // Also clear on server
+    if (isAuthenticated()) {
+      try {
+        await clearCartOnServer();
+      } catch (error) {
+        console.error('[Cart] Failed to clear on server:', error);
+      }
+    }
+  };
 
   const addToCart = (product: any, quantity: number = 1, weight: string) => {
     const productId = getProductId(product);
     const { price: basePrice, weight: baseWeight } = getProductPriceAndWeight(product, weight);
 
-    // For variant-based products, use direct variant price
+    // For variant-based products, use direct variant price and get variantId
     let calculatedPrice: number;
+    let variantId: string | undefined;
+
     if (product.variants && product.variants.length > 0) {
       const selectedVariant = product.variants.find((v: any) => v.weight === weight);
       if (selectedVariant) {
         calculatedPrice = selectedVariant.discountedPrice && selectedVariant.discountedPrice < selectedVariant.price
           ? selectedVariant.discountedPrice
           : selectedVariant.price;
+        variantId = selectedVariant._id; // Capture variantId for checkout
       } else {
         calculatedPrice = calculatePriceForWeight(basePrice, baseWeight, weight);
       }
@@ -140,7 +242,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: product.description || '',
           quantity,
           selectedWeight: weight,
-          calculatedPrice
+          calculatedPrice,
+          variantId // Store variantId for checkout
         };
         return [...prev, cartItem];
       }
@@ -177,7 +280,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateQuantity,
       clearCart,
       cartTotal,
-      cartCount
+      cartCount,
+      syncCartFromServer,
+      isSyncing
     }}>
       {children}
     </CartContext.Provider>

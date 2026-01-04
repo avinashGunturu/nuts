@@ -86,7 +86,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
+    setAddresses([]);
+
+    // Clear all localStorage items
     localStorage.removeItem('kcnuts_user');
+    localStorage.removeItem('kcnuts_addresses');
+    localStorage.removeItem('kcnuts_cart');
+
+    // Clear sessionStorage
+    sessionStorage.clear();
+
+    // Clear auth cookie
     document.cookie = 'Authorization=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   };
 

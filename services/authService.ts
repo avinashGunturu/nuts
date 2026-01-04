@@ -19,6 +19,17 @@ export interface VerifyOtpPayload {
     userEmail?: string; // Optional: for signup flow (separate from OTP email identifier)
 }
 
+export interface UserAddress {
+    _id?: string;
+    type: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+    isDefault: boolean;
+}
+
 export interface User {
     _id: string;
     name: string;
@@ -27,6 +38,7 @@ export interface User {
     role: string;
     isEmailVerified?: boolean;
     isPhoneVerified?: boolean;
+    addresses?: UserAddress[];
 }
 
 export interface AuthResponse {
