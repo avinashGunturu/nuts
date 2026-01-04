@@ -69,6 +69,7 @@ export const Login: React.FC = () => {
       if (response.data?.token) {
         // Save token in cookie
         setAuthCookie(response.data.token);
+        localStorage.setItem('token', response.data.token);
       }
 
       // Fetch user profile to populate AuthContext

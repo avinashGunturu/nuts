@@ -209,7 +209,18 @@ export const orderService = {
     /**
      * Get user's order history
      */
-    getMyOrders: async (): Promise<{ success: boolean; data: Order[] }> => {
+    getMyOrders: async (page = 1, limit = 10): Promise<{
+        success: boolean;
+        data: {
+            orders: Order[];
+            pagination: {
+                total: number;
+                page: number;
+                limit: number;
+                pages: number;
+            }
+        }
+    }> => {
         try {
             const token = getAuthToken();
             if (!token) {
@@ -217,7 +228,7 @@ export const orderService = {
             }
 
             const response = await fetch(
-                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS_MY_ORDERS}`,
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS_MY_ORDERS}?page=${page}&limit=${limit}`,
                 {
                     method: 'GET',
                     headers: {

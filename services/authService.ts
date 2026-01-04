@@ -56,8 +56,8 @@ const getAuthToken = (): string | null => {
     // Check for cookie 'authorization' or 'Authorization'
     const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
     if (match) return match[2];
-    // Fallback?
-    return null;
+    // Fallback to localStorage
+    return localStorage.getItem('token');
 };
 
 export const setAuthCookie = (token: string): void => {

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { updateUserProfile, sendOtp, verifyUserField } from '../services/authService';
 import { Button } from '../components/Button';
-import { User, MapPin, Mail, Phone, Plus, Trash2, ShieldCheck, LogOut, ChevronRight, Settings, X, Check, AlertCircle, CheckCircle, BadgeCheck, Lock } from 'lucide-react';
+import { User, MapPin, Mail, Phone, Plus, Trash2, ShieldCheck, LogOut, ChevronRight, Settings, X, Check, AlertCircle, CheckCircle, BadgeCheck, Lock, Loader2 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export const Profile: React.FC = () => {
-  const { user, logout, addresses, updateProfile, deleteAddress, addAddress, isAuthenticated, fetchUserProfile } = useAuth();
+  const { user, logout, addresses, updateProfile, deleteAddress, addAddress, isAuthenticated, fetchUserProfile, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'details' | 'addresses'>('details');
   const [isEditing, setIsEditing] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -31,6 +31,14 @@ export const Profile: React.FC = () => {
     pincode: '',
     isDefault: false
   });
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 pt-36 pb-24 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-brand" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return <Navigate to="/login" />;
 

@@ -49,6 +49,7 @@ export const AdminLogin: React.FC = () => {
 
             if (response.data?.token) {
                 document.cookie = `Authorization=${response.data.token}; path=/; max-age=604800; samesite=lax`;
+                localStorage.setItem('token', response.data.token);
             }
 
             // OTP Verified. Cookie should be set by backend or we rely on it being set via res.
