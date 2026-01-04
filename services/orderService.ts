@@ -235,5 +235,115 @@ export const orderService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    /**
+     * Get all orders (Admin) with filters and pagination
+     */
+    getAllOrders: async (filters: {
+        page?: number;
+        limit?: number;
+        status?: string;
+        orderId?: string;
+        startDate?: string;
+        endDate?: string;
+    } = {}): Promise<{
+        orders: Order[];
+        pagination: {
+            total: number;
+            page: number;
+            limit: number;
+            pages: number;
+        };
+    }> => {
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS_LIST}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(filters)
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to fetch orders');
+            }
+            return result.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Get single order by orderId (Admin)
+     */
+    getOrderById: async (orderId: string): Promise<Order> => {
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS}/${orderId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to fetch order');
+            }
+            return result.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Update order status (Admin)
+     */
+    updateOrderStatus: async (mongoId: string, status: string): Promise<Order> => {
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS}/${mongoId}/status`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to update status');
+            }
+            return result.data;
+        } catch (error) {
+            throw error;
+        }
     }
 };
