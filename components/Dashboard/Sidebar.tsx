@@ -11,7 +11,8 @@ import {
   ChevronRight,
   CreditCard,
   MessageSquare,
-  Briefcase
+  Briefcase,
+  Ticket
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { icon: Users, label: 'Customers', path: '/dashboard/customers' },
   { icon: Briefcase, label: 'Wholesale', path: '/dashboard/wholesale-requests' },
   { icon: MessageSquare, label: 'Messages', path: '/dashboard/contact-requests' },
+  { icon: Ticket, label: 'Coupons', path: '/dashboard/coupons' },
 ];
 
 export const Sidebar: React.FC = () => {
@@ -56,8 +58,8 @@ export const Sidebar: React.FC = () => {
               key={item.label}
               to={item.path}
               className={`flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group ${isActive
-                  ? 'bg-brand text-white shadow-lg shadow-brand/20'
-                  : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
+                ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
                 }`}
             >
               <div className="flex items-center gap-3">

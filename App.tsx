@@ -32,6 +32,7 @@ import { AdminCustomerDetails } from './pages/Dashboard/AdminCustomerDetails';
 import { AdminContactRequests } from './pages/Dashboard/AdminContactRequests';
 import { AdminWholesaleRequests } from './pages/Dashboard/AdminWholesaleRequests';
 import { AdminWholesaleDetails } from './pages/Dashboard/AdminWholesaleDetails';
+import { AdminCoupons } from './pages/Dashboard/AdminCoupons';
 
 const App: React.FC = () => {
    return (
@@ -72,6 +73,7 @@ const App: React.FC = () => {
                         <Route path="contact-requests" element={<AdminContactRequests />} />
                         <Route path="wholesale-requests" element={<AdminWholesaleRequests />} />
                         <Route path="wholesale-requests/:id" element={<AdminWholesaleDetails />} />
+                        <Route path="coupons" element={<AdminCoupons />} />
 
                         {/* Other Dashboard Sub-routes */}
                         <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
