@@ -15,6 +15,8 @@ export interface VerifyOtpPayload {
     phone?: string;
     email?: string;
     otp: string;
+    name?: string;      // Optional: for signup flow
+    userEmail?: string; // Optional: for signup flow (separate from OTP email identifier)
 }
 
 export interface User {
@@ -44,6 +46,11 @@ const getAuthToken = (): string | null => {
     if (match) return match[2];
     // Fallback?
     return null;
+};
+
+export const setAuthCookie = (token: string): void => {
+    // Set cookie with 7-day expiry, path=/, samesite=lax for security
+    document.cookie = `Authorization=${token}; path=/; max-age=604800; samesite=lax`;
 };
 
 export const sendOtp = async (data: SendOtpPayload): Promise<AuthResponse> => {
@@ -124,5 +131,69 @@ export const getMe = async (): Promise<User> => {
             throw new Error(error.message);
         }
         throw new Error('An unexpected error occurred fetching profile');
+    }
+};
+
+export interface UpdateProfilePayload {
+    name?: string;
+    email?: string;
+    phone?: string;
+}
+
+export const updateUserProfile = async (data: UpdateProfilePayload): Promise<User> => {
+    const token = getAuthToken();
+    if (!token) throw new Error('No Authorization token found');
+
+    try {
+        const response = await fetch(`${API_URL}/me`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to update profile');
+        }
+
+        return result.data;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred updating profile');
+    }
+};
+
+export const verifyUserField = async (type: 'email' | 'phone', otp: string): Promise<User> => {
+    const token = getAuthToken();
+    if (!token) throw new Error('No Authorization token found');
+
+    try {
+        const response = await fetch(`${API_URL}/verify-field`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ type, otp })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Verification failed');
+        }
+
+        return result.data;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred during verification');
     }
 };

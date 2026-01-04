@@ -1,39 +1,93 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { sendOtp, verifyOtp, setAuthCookie } from '../services/authService';
 import { Button } from '../components/Button';
-import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, ShieldCheck, Phone, ArrowLeft } from 'lucide-react';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1); // 1 = Enter phone/email, 2 = Enter OTP
+  const [identifier, setIdentifier] = useState('');
+  const [inputType, setInputType] = useState<'phone' | 'email'>('phone');
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+
+  const { fetchUserProfile } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 1: Send OTP
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Mock Login Logic
-    setTimeout(() => {
-      if (email && password.length >= 6) {
-        login({
-          _id: 'mock-customer-id',
-          role: 'customer',
-          name: 'Rajesh Sharma',
-          email: email,
-          phone: '+91 9876543210'
-        });
-        navigate('/shop');
-      } else {
-        setError('Invalid email or password (min 6 characters)');
+    // Validation
+    if (inputType === 'phone') {
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(identifier)) {
+        setError('Please enter a valid 10-digit Indian mobile number');
+        setIsLoading(false);
+        return;
       }
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(identifier)) {
+        setError('Please enter a valid email address');
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    try {
+      const payload = inputType === 'phone'
+        ? { phone: identifier }
+        : { email: identifier };
+
+      await sendOtp(payload);
+      setStep(2);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
+  };
+
+  // Step 2: Verify OTP and Login
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const payload = inputType === 'phone'
+        ? { phone: identifier, otp }
+        : { email: identifier, otp };
+
+      const response = await verifyOtp(payload);
+
+      if (response.data?.token) {
+        // Save token in cookie
+        setAuthCookie(response.data.token);
+      }
+
+      // Fetch user profile to populate AuthContext
+      await fetchUserProfile();
+
+      // Redirect to shop
+      navigate('/shop');
+
+    } catch (err: any) {
+      setError(err.message || 'Verification failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleInputType = () => {
+    setInputType(prev => prev === 'phone' ? 'email' : 'phone');
+    setIdentifier('');
+    setError('');
   };
 
   return (
@@ -91,8 +145,14 @@ export const Login: React.FC = () => {
           </div>
 
           <div className="mb-10">
-            <h1 className="text-4xl font-bold text-neutral-900 mb-2 tracking-tight">Welcome back</h1>
-            <p className="text-neutral-500 font-light text-lg">Continue your healthy journey with KCnuts</p>
+            <h1 className="text-4xl font-bold text-neutral-900 mb-2 tracking-tight">
+              {step === 1 ? 'Welcome back' : 'Verify OTP'}
+            </h1>
+            <p className="text-neutral-500 font-light text-lg">
+              {step === 1
+                ? 'Continue your healthy journey with KCnuts'
+                : `Enter the OTP sent to ${identifier}`}
+            </p>
           </div>
 
           {error && (
@@ -102,55 +162,83 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] ml-1">Email Address</label>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
-                  <Mail size={20} />
+          {step === 1 ? (
+            // Step 1: Enter Phone or Email
+            <form onSubmit={handleSendOtp} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] ml-1">
+                  {inputType === 'phone' ? 'Mobile Number' : 'Email Address'}
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
+                    {inputType === 'phone' ? <Phone size={20} /> : <Mail size={20} />}
+                  </div>
+                  <input
+                    type={inputType === 'phone' ? 'tel' : 'email'}
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900"
+                    placeholder={inputType === 'phone' ? '9876543210' : 'name@example.com'}
+                    required
+                  />
                 </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900"
-                  placeholder="name@example.com"
-                  required
-                />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em]">Password</label>
-                <button type="button" className="text-xs font-bold text-brand hover:underline">Forgot password?</button>
-              </div>
-              <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
-                  <Lock size={20} />
-                </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-14 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900"
-                  placeholder="••••••••"
-                  required
-                />
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-brand transition-colors p-1"
+                  onClick={toggleInputType}
+                  className="text-sm font-medium text-brand hover:underline"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  Use {inputType === 'phone' ? 'Email' : 'Phone'} instead
                 </button>
               </div>
-            </div>
 
-            <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20 group" isLoading={isLoading}>
-              Sign In <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-            </Button>
-          </form>
+              <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20 group" isLoading={isLoading}>
+                Send OTP <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              </Button>
+            </form>
+          ) : (
+            // Step 2: Enter OTP
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] ml-1">
+                  Enter OTP
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-brand transition-colors">
+                    <Lock size={20} />
+                  </div>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50 hover:bg-neutral-50 text-neutral-900 text-center text-2xl tracking-[0.5em] font-mono"
+                    placeholder="123456"
+                    maxLength={6}
+                    required
+                  />
+                </div>
+                <p className="text-xs text-neutral-500 mt-2 ml-1">
+                  OTP sent to <span className="font-semibold">{identifier}</span>
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20 group" isLoading={isLoading}>
+                  Verify & Sign In <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => { setStep(1); setOtp(''); setError(''); }}
+                  className="w-full py-3 text-neutral-600 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors"
+                >
+                  <ArrowLeft size={18} /> Change {inputType === 'phone' ? 'Number' : 'Email'}
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Social Proof Placeholder */}
           <div className="mt-12 text-center">
