@@ -139,7 +139,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
     <div className={`group flex flex-col h-full bg-white rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-overlay ${isHighlighted ? 'border-brand shadow-glow' : 'border-neutral-100 hover:border-neutral-200'}`}>
 
       {/* Image Container & Slider */}
-      <div className="relative aspect-[4/5] sm:aspect-square overflow-hidden rounded-t-3xl bg-neutral-50 group/image">
+      <div className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden rounded-t-3xl bg-neutral-50 group/image">
         {/* Badges */}
         {product.isNew && (
           <span className="absolute top-4 left-4 z-20 bg-neutral-900 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
@@ -206,31 +206,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
       </div>
 
       {/* Content */}
-      <div className="flex flex-col flex-grow p-6">
+      <div className="flex flex-col flex-grow p-4">
 
         {/* Title & Category */}
-        <div className="mb-4">
-          <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">{product.category}</p>
+        <div className="mb-3">
+          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">{product.category}</p>
           <Link to={`/product/${productId}`}>
-            <h3 className="text-xl font-bold text-neutral-900 group-hover:text-brand transition-colors line-clamp-1 leading-tight">
+            <h3 className="text-base font-bold text-neutral-900 group-hover:text-brand transition-colors line-clamp-1 leading-tight">
               {product.name}
             </h3>
           </Link>
         </div>
 
         {/* Price & Controls Container */}
-        <div className="mt-auto space-y-4">
+        <div className="mt-auto space-y-3">
           {/* Price Display with Discount */}
           <div className="flex flex-wrap items-baseline gap-2">
             {hasDiscount && (
               <>
-                <span className="text-lg text-neutral-400 line-through font-medium">₹{originalPrice.toLocaleString('en-IN')}</span>
-                <span className="text-xs font-bold text-white bg-success px-2 py-0.5 rounded-full">{discountPercent}% OFF</span>
+                <span className="text-sm text-neutral-400 line-through font-medium">₹{originalPrice.toLocaleString('en-IN')}</span>
+                <span className="text-[10px] font-bold text-white bg-success px-1.5 py-0.5 rounded-full">{discountPercent}% OFF</span>
               </>
             )}
             <div className="w-full flex items-baseline gap-1">
-              <span className={`text-2xl font-bold ${hasDiscount ? 'text-success' : 'text-neutral-900'}`}>₹{displayPrice.toLocaleString('en-IN')}</span>
-              <span className="text-sm text-neutral-500 font-medium">/ {selectedWeight}</span>
+              <span className={`text-xl font-bold ${hasDiscount ? 'text-success' : 'text-neutral-900'}`}>₹{displayPrice.toLocaleString('en-IN')}</span>
+              <span className="text-xs text-neutral-500 font-medium">/ {selectedWeight}</span>
             </div>
           </div>
 
@@ -264,7 +264,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
           {/* Actions Row */}
           <div className="flex items-center gap-3">
             {/* Quantity */}
-            <div className="flex items-center bg-white border-2 border-neutral-100 rounded-xl h-12 px-1 w-[90px] flex-shrink-0 justify-between focus-within:border-neutral-300 transition-colors">
+            <div className="flex items-center bg-white border-2 border-neutral-100 rounded-xl h-10 px-1 w-[80px] flex-shrink-0 justify-between focus-within:border-neutral-300 transition-colors">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-8 h-full flex items-center justify-center text-neutral-400 hover:text-neutral-900 transition-colors disabled:opacity-30"
@@ -285,7 +285,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
             <button
               onClick={handleAddToCart}
               disabled={isAdded}
-              className={`flex-1 h-12 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 group/btn ${isAdded
+              className={`flex-1 h-10 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-95 group/btn ${isAdded
                 ? 'bg-success text-white shadow-success/30 cursor-default'
                 : 'bg-brand hover:bg-brand-dark text-white hover:shadow-brand/40'
                 }`}
