@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sendOtp, verifyOtp, setAuthCookie } from '../services/authService';
 import { Button } from '../components/Button';
-import { Mail, Lock, ArrowRight, AlertCircle, ShieldCheck, Phone, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, ShieldCheck, Phone, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const [step, setStep] = useState<1 | 2>(1); // 1 = Enter phone/email, 2 = Enter OTP
@@ -12,9 +12,26 @@ export const Login: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   const { fetchUserProfile } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   // Step 1: Send OTP
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -46,8 +63,30 @@ export const Login: React.FC = () => {
 
       await sendOtp(payload);
       setStep(2);
+      setResendTimer(300); // Start 5 min timer
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+
+    setIsLoading(true);
+    setError('');
+    setOtp('');
+
+    try {
+      const payload = inputType === 'phone'
+        ? { phone: identifier }
+        : { email: identifier };
+
+      await sendOtp(payload);
+      setResendTimer(300); // Reset 5 min timer
+    } catch (err: any) {
+      setError(err.message || 'Failed to resend OTP');
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +196,7 @@ export const Login: React.FC = () => {
           </div>
 
           {error && (
-            <div className="mb-8 p-4 bg-error-bg border border-error/10 rounded-2xl flex items-center gap-3 text-error text-sm font-medium animate-fade-in-up">
+            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-medium animate-fade-in-up">
               <AlertCircle size={20} className="shrink-0" />
               {error}
             </div>
@@ -220,9 +259,27 @@ export const Login: React.FC = () => {
                     required
                   />
                 </div>
-                <p className="text-xs text-neutral-500 mt-2 ml-1">
-                  OTP sent to <span className="font-semibold">{identifier}</span>
-                </p>
+                <div className="flex justify-between items-center mt-2">
+                  <p className="text-xs text-neutral-500 ml-1">
+                    OTP sent to <span className="font-semibold">{identifier}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendTimer > 0 || isLoading}
+                    className={`text-xs font-medium flex items-center gap-1 ${resendTimer > 0 ? 'text-neutral-400 cursor-not-allowed' : 'text-brand hover:underline'}`}
+                  >
+                    {isLoading && resendTimer === 0 ? 'Sending...' : (
+                      resendTimer > 0 ? (
+                        <span>Resend in {formatTime(resendTimer)}</span>
+                      ) : (
+                        <>
+                          <RefreshCw size={12} /> Resend OTP
+                        </>
+                      )
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -232,8 +289,9 @@ export const Login: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={() => { setStep(1); setOtp(''); setError(''); }}
-                  className="w-full py-3 text-neutral-600 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors"
+                  onClick={() => { setStep(1); setOtp(''); setError(''); setResendTimer(0); }}
+                  disabled={resendTimer > 0}
+                  className={`w-full py-3 font-medium flex items-center justify-center gap-2 transition-colors ${resendTimer > 0 ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:text-brand'}`}
                 >
                   <ArrowLeft size={18} /> Change {inputType === 'phone' ? 'Number' : 'Email'}
                 </button>
