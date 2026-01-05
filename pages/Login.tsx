@@ -8,7 +8,7 @@ import { Mail, Lock, ArrowRight, AlertCircle, ShieldCheck, Phone, ArrowLeft } fr
 export const Login: React.FC = () => {
   const [step, setStep] = useState<1 | 2>(1); // 1 = Enter phone/email, 2 = Enter OTP
   const [identifier, setIdentifier] = useState('');
-  const [inputType, setInputType] = useState<'phone' | 'email'>('phone');
+  const [inputType, setInputType] = useState<'phone' | 'email'>('email');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -185,7 +185,7 @@ export const Login: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <button
                   type="button"
                   onClick={toggleInputType}
@@ -193,7 +193,7 @@ export const Login: React.FC = () => {
                 >
                   Use {inputType === 'phone' ? 'Email' : 'Phone'} instead
                 </button>
-              </div>
+              </div> */}
 
               <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20 group" isLoading={isLoading}>
                 Send OTP <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
