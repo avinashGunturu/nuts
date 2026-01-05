@@ -126,8 +126,8 @@ export const DashboardOverview: React.FC = () => {
             <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
                {/* <Button variant="outline" size="sm" className="bg-white whitespace-nowrap">Download Reports</Button> */}
                <Link to="/dashboard/products/add">
-                  <Button variant="black" size="sm" className="flex items-center gap-2 whitespace-nowrap">
-                     <Plus size={18} /> Add Product
+                  <Button variant="black" size="md" className="flex items-center gap-2 shadow-xl shadow-neutral-900/10">
+                     <Plus size={20} /> Add Product
                   </Button>
                </Link>
             </div>

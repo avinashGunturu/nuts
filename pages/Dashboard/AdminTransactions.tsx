@@ -329,7 +329,9 @@ export const AdminTransactions: React.FC = () => {
                   <p className="text-neutral-400 text-sm mt-1">All payments are being routed through your production Razorpay account. Settlements are daily.</p>
                </div>
             </div>
-            <Button variant="white" size="sm">Go to Razorpay Dashboard <ExternalLink size={14} className="ml-2" /></Button>
+            <a href="https://razorpay.com/" target="_blank" rel="noopener noreferrer">
+               <Button variant="white" size="sm">Go to Razorpay Dashboard <ExternalLink size={14} className="ml-2" /></Button>
+            </a>
          </div>
       </div>
    );

@@ -344,7 +344,7 @@ export const AddProduct: React.FC = () => {
                <h1 className="text-4xl font-bold text-neutral-900 tracking-tight">{isEditMode ? 'Edit Product' : 'Add New Product'}</h1>
             </div>
             <div className="flex items-center gap-4">
-               <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/products')}>Cancel</Button>
+               <Button variant="outline" size="md" onClick={() => navigate('/dashboard/products')}>Cancel</Button>
                <Button variant="black" size="md" className="shadow-xl shadow-neutral-900/10" onClick={handleSubmit} isLoading={isLoading}>
                   <Save size={18} className="mr-2" /> Save
                </Button>

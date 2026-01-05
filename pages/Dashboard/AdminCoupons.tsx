@@ -412,12 +412,12 @@ export const AdminCoupons: React.FC = () => {
                     <p className="text-neutral-500 mt-2 font-medium">Create and manage discount coupons for your store.</p>
                 </div>
                 <Button
-                    variant="primary"
-                    size="sm"
-                    className="gap-2"
+                    variant="black"
+                    size="md"
+                    className="flex items-center gap-2 shadow-xl shadow-neutral-900/10"
                     onClick={openCreateModal}
                 >
-                    <Plus size={18} /> Create Coupon
+                    <Plus size={20} /> Create Coupon
                 </Button>
             </div>
 

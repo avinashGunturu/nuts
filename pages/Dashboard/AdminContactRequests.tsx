@@ -95,11 +95,11 @@ export const AdminContactRequests: React.FC = () => {
                <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Contact Requests</h1>
                <p className="text-neutral-500 mt-1 font-medium text-sm">Manage inquiries and support requests.</p>
             </div>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
                <Button variant="outline" size="sm" className="bg-white gap-2">
                   <Download size={16} /> Export
                </Button>
-            </div>
+            </div> */}
          </div>
 
          {/* Filters Bar */}
@@ -189,8 +189,8 @@ export const AdminContactRequests: React.FC = () => {
                                  </td>
                                  <td className="px-3 py-3">
                                     <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider inline-block ${req.status === 'resolved' ? 'bg-green-50 text-green-600' :
-                                          req.status === 'new' ? 'bg-blue-50 text-blue-600' :
-                                             'bg-neutral-100 text-neutral-500'
+                                       req.status === 'new' ? 'bg-blue-50 text-blue-600' :
+                                          'bg-neutral-100 text-neutral-500'
                                        }`}>
                                        {req.status}
                                     </span>

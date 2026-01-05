@@ -76,11 +76,11 @@ export const AdminWholesaleRequests: React.FC = () => {
                <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Wholesale Inquiries</h1>
                <p className="text-neutral-500 mt-1 font-medium text-sm">Review and manage B2B partnership requests.</p>
             </div>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
                <Button variant="outline" size="sm" className="bg-white gap-2">
                   <Download size={16} /> Export
                </Button>
-            </div>
+            </div> */}
          </div>
 
          {/* Filters Bar */}

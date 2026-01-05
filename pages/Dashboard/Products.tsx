@@ -104,10 +104,10 @@ export const AdminProducts: React.FC = () => {
       setProductToDelete(id);
       setModalConfig({
          isOpen: true,
-         title: 'Delete Product',
-         message: 'Are you sure you want to delete this product? This action cannot be undone.',
+         title: 'Deactivate Product',
+         message: 'Are you sure you want to deactivate this product? It will be hidden from the shop but can be reactivated later.',
          type: 'warning',
-         actionLabel: 'Delete',
+         actionLabel: 'Deactivate',
          onAction: () => handleConfirmDelete(id)
       });
    };
@@ -170,7 +170,7 @@ export const AdminProducts: React.FC = () => {
             </Link>
          </div>
 
-         {/* Filters Bar */}
+         {/* Filters Bar - Unified Single Line */}
          <div className="bg-white p-6 rounded-[32px] border border-neutral-100 shadow-sm flex flex-col md:flex-row justify-between gap-4">
             <div className="relative flex-1 max-w-md">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
@@ -182,7 +182,7 @@ export const AdminProducts: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center overflow-x-auto no-scrollbar">
                <select
                   className="bg-neutral-50 border border-neutral-100 rounded-2xl px-5 py-3 text-sm font-bold outline-none focus:border-brand transition-all appearance-none pr-10 relative cursor-pointer"
                   value={categoryFilter}
@@ -190,39 +190,22 @@ export const AdminProducts: React.FC = () => {
                >
                   {categories.map(cat => <option key={cat}>{cat}</option>)}
                </select>
-               <Button
-                  variant="outline"
-                  size="sm"
-                  className={`flex items-center gap-2 ${showFilters ? 'bg-brand-50 border-brand text-brand' : 'bg-white'}`}
-                  onClick={() => setShowFilters(!showFilters)}
-               >
-                  <Filter size={16} /> Filters
-               </Button>
-            </div>
-         </div>
-
-         {/* Expanded Filters Panel */}
-         {showFilters && (
-            <div className="bg-white p-6 rounded-[32px] border border-neutral-100 shadow-sm animate-fade-in-up grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="space-y-2">
-                  <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest pl-1">Status</label>
-                  <div className="flex bg-neutral-50 p-1 rounded-xl border border-neutral-100">
-                     {['all', 'active', 'inactive'].map((status) => (
-                        <button
-                           key={status}
-                           onClick={() => setStatusFilter(status)}
-                           className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${statusFilter === status
-                              ? 'bg-white text-neutral-900 shadow-sm'
-                              : 'text-neutral-400 hover:text-neutral-600'
-                              }`}
-                        >
-                           {status}
-                        </button>
-                     ))}
-                  </div>
+               <div className="bg-neutral-100 p-1 rounded-2xl flex gap-1">
+                  {['all', 'active', 'inactive'].map((status) => (
+                     <button
+                        key={status}
+                        onClick={() => setStatusFilter(status)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap capitalize ${statusFilter === status
+                           ? 'bg-white text-neutral-900 shadow-sm'
+                           : 'text-neutral-500 hover:text-neutral-900'
+                           }`}
+                     >
+                        {status}
+                     </button>
+                  ))}
                </div>
             </div>
-         )}
+         </div>
 
          {/* Table Container */}
          <div className="bg-white rounded-[40px] border border-neutral-100 shadow-sm overflow-hidden">

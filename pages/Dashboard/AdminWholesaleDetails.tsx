@@ -97,19 +97,27 @@ export const AdminWholesaleDetails: React.FC = () => {
                <p className="text-neutral-500 mt-2 font-medium">Received on {new Date(inquiry.createdAt).toLocaleString()}</p>
             </div>
             <div className="flex items-center gap-3">
-               <Button variant="outline" size="sm" className="bg-white gap-2">
-                  <Briefcase size={18} /> Send Quote
-               </Button>
-               <Button
-                  variant="primary"
-                  size="md"
-                  className="gap-2"
-                  onClick={() => handleStatusUpdate('resolved')}
-                  isLoading={isUpdating}
-                  disabled={status === 'resolved'}
-               >
-                  <CheckCircle2 size={18} /> Mark as Resolved
-               </Button>
+               {status === 'resolved' ? (
+                  <Button
+                     variant="outline"
+                     size="md"
+                     className="gap-2"
+                     onClick={() => handleStatusUpdate('new')}
+                     isLoading={isUpdating}
+                  >
+                     <XCircle size={18} /> Reopen Inquiry
+                  </Button>
+               ) : (
+                  <Button
+                     variant="primary"
+                     size="md"
+                     className="gap-2"
+                     onClick={() => handleStatusUpdate('resolved')}
+                     isLoading={isUpdating}
+                  >
+                     <CheckCircle2 size={18} /> Mark as Resolved
+                  </Button>
+               )}
             </div>
          </div>
 
@@ -173,11 +181,11 @@ export const AdminWholesaleDetails: React.FC = () => {
                   </div>
 
                   <div className="space-y-6">
-                     <div className="flex items-center gap-4 group">
-                        <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-brand-50 group-hover:text-brand transition-colors">
+                     <div className="flex items-start gap-4 group">
+                        <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-brand-50 group-hover:text-brand transition-colors flex-shrink-0">
                            <Mail size={18} />
                         </div>
-                        <span className="text-sm font-bold text-neutral-600 truncate" title={inquiry.email}>{inquiry.email}</span>
+                        <span className="text-sm font-bold text-neutral-600 break-all">{inquiry.email}</span>
                      </div>
                      <div className="flex items-center gap-4 group">
                         <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:bg-brand-50 group-hover:text-brand transition-colors">

@@ -111,11 +111,11 @@ export const AdminCustomers: React.FC = () => {
                <h1 className="text-4xl font-bold text-neutral-900 tracking-tight">Customers</h1>
                <p className="text-neutral-500 mt-2 font-medium">Manage and view your registered customer base.</p>
             </div>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
                <Button variant="outline" size="sm" className="bg-white gap-2">
                   <Download size={18} /> Export List
                </Button>
-            </div>
+            </div> */}
          </div>
 
 
