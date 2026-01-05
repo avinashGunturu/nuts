@@ -1,18 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getMe, User as AuthUser } from '../services/authService';
-
-interface Address {
-  id: string;
-  label: string;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  isDefault: boolean;
-}
+import { getMe, User as AuthUser, UserAddress, addUserAddress, updateUserAddress, deleteUserAddress, AddressPayload } from '../services/authService';
 
 // Extend or alias the User from authService
 export type User = AuthUser;
+export type Address = UserAddress;
 
 interface AuthContextType {
   user: User | null;
@@ -21,8 +12,9 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (userData: User) => void;
   fetchUserProfile: () => Promise<void>;
-  addAddress: (address: Omit<Address, 'id'>) => void;
-  deleteAddress: (id: string) => void;
+  addAddress: (address: AddressPayload) => Promise<void>;
+  updateAddress: (addressId: string, address: Partial<AddressPayload>) => Promise<void>;
+  deleteAddress: (id: string) => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -45,9 +37,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } finally {
         setIsLoading(false);
       }
-
-      const savedAddresses = localStorage.getItem('kcnuts_addresses');
-      if (savedAddresses) setAddresses(JSON.parse(savedAddresses));
     };
 
     initAuth();
@@ -57,9 +46,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userData = await getMe();
       setUser(userData);
+      setAddresses(userData.addresses || []);
       localStorage.setItem('kcnuts_user', JSON.stringify(userData));
     } catch (error) {
       setUser(null);
+      setAddresses([]);
       localStorage.removeItem('kcnuts_user');
       throw error;
     }
@@ -67,21 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = (userData: User) => {
     setUser(userData);
+    setAddresses(userData.addresses || []);
     localStorage.setItem('kcnuts_user', JSON.stringify(userData));
-    // Set some mock addresses if none exist for a new "login" demo (Legacy logic kept for compatibility)
-    if (addresses.length === 0) {
-      const mockAddress = {
-        id: '1',
-        label: 'Home',
-        address: '42, Blue Diamond Residency, Worli',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pincode: '400018',
-        isDefault: true
-      };
-      setAddresses([mockAddress]);
-      localStorage.setItem('kcnuts_addresses', JSON.stringify([mockAddress]));
-    }
   };
 
   const logout = () => {
@@ -102,20 +80,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = (userData: User) => {
     setUser(userData);
+    setAddresses(userData.addresses || []);
     localStorage.setItem('kcnuts_user', JSON.stringify(userData));
   };
 
-  const addAddress = (address: Omit<Address, 'id'>) => {
-    const newAddress = { ...address, id: Math.random().toString(36).substr(2, 9) };
-    const updated = [...addresses, newAddress];
-    setAddresses(updated);
-    localStorage.setItem('kcnuts_addresses', JSON.stringify(updated));
+  const addAddress = async (address: AddressPayload) => {
+    const updatedAddresses = await addUserAddress(address);
+    setAddresses(updatedAddresses);
   };
 
-  const deleteAddress = (id: string) => {
-    const updated = addresses.filter(a => a.id !== id);
-    setAddresses(updated);
-    localStorage.setItem('kcnuts_addresses', JSON.stringify(updated));
+  const updateAddress = async (addressId: string, address: Partial<AddressPayload>) => {
+    const updatedAddresses = await updateUserAddress(addressId, address);
+    setAddresses(updatedAddresses);
+  };
+
+  const deleteAddress = async (id: string) => {
+    const updatedAddresses = await deleteUserAddress(id);
+    setAddresses(updatedAddresses);
   };
 
   return (
@@ -127,6 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateProfile,
       fetchUserProfile,
       addAddress,
+      updateAddress,
       deleteAddress,
       isAuthenticated: !!user,
       isLoading

@@ -182,54 +182,56 @@ export const AdminCustomerDetails: React.FC = () => {
                   </div>
 
                   {/* Right Column: Address Data */}
-                  <div className="lg:col-span-5 space-y-10">
-                     <div>
-                        <div className="flex items-center justify-between mb-10">
-                           <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-[0.2em] flex items-center gap-3">
-                              <MapPin size={20} className="text-brand" /> Delivery Address
-                           </h3>
-                           {customer.address && <span className="text-[10px] font-bold text-brand bg-brand-50 px-4 py-1.5 rounded-full border border-brand/10">Default</span>}
-                        </div>
-
-                        {customer.address ? (
-                           <div className="bg-white p-10 rounded-[3rem] border-2 border-neutral-100 shadow-sm space-y-10 hover:border-brand/20 transition-colors">
-                              <div className="space-y-2">
-                                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest">Street & Locality</p>
-                                 <p className="text-2xl font-bold text-neutral-800 leading-tight">
-                                    {customer.address.street}
-                                 </p>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-8">
-                                 <div className="space-y-2">
-                                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest">City</p>
-                                    <p className="text-lg font-bold text-neutral-700">{customer.address.city}</p>
-                                 </div>
-                                 <div className="space-y-2">
-                                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest">State</p>
-                                    <p className="text-lg font-bold text-neutral-700">{customer.address.state}</p>
-                                 </div>
-                              </div>
-
-                              <div className="pt-8 border-t border-neutral-100 flex justify-between items-center">
-                                 <div className="space-y-2">
-                                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest">Pincode</p>
-                                    <p className="text-lg font-bold text-neutral-700">{customer.address.zip || customer.address.pincode}</p>
-                                 </div>
-                                 <div className="text-right space-y-2">
-                                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest">Country</p>
-                                    <p className="text-lg font-bold text-neutral-700">{customer.address.country || 'India'}</p>
-                                 </div>
-                              </div>
-                           </div>
-                        ) : (
-                           <div className="p-10 rounded-[3rem] border-2 border-dashed border-neutral-200 text-center text-neutral-400">
-                              No address provided.
-                           </div>
+                  <div className="lg:col-span-5">
+                     <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                           <MapPin size={20} className="text-brand" /> Delivery Addresses
+                        </h3>
+                        {customer.addresses && customer.addresses.length > 0 && (
+                           <span className="text-[10px] font-bold text-neutral-500 bg-neutral-100 px-3 py-1 rounded-full">
+                              {customer.addresses.length}
+                           </span>
                         )}
                      </div>
 
+                     {customer.addresses && customer.addresses.length > 0 ? (
+                        <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
+                           {customer.addresses.map((addr: any, index: number) => (
+                              <div
+                                 key={addr._id || index}
+                                 className={`bg-neutral-50 p-5 rounded-2xl border ${addr.isDefault ? 'border-brand/30 bg-brand-50/30' : 'border-neutral-100'} hover:border-brand/20 transition-colors`}
+                              >
+                                 {/* Header Row */}
+                                 <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                       <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-500 bg-white px-2 py-0.5 rounded capitalize border border-neutral-100">
+                                          {addr.type || 'Home'}
+                                       </span>
+                                       {addr.isDefault && (
+                                          <span className="text-[9px] font-bold text-brand bg-brand-50 px-2 py-0.5 rounded-full border border-brand/10">
+                                             Default
+                                          </span>
+                                       )}
+                                    </div>
+                                 </div>
 
+                                 {/* Street - Main */}
+                                 <p className="text-base font-bold text-neutral-800 mb-2 leading-snug">
+                                    {addr.street}
+                                 </p>
+
+                                 {/* Inline Location Details */}
+                                 <p className="text-sm text-neutral-500">
+                                    {addr.city}, {addr.state} - <span className="font-semibold text-neutral-700">{addr.zip}</span>
+                                 </p>
+                              </div>
+                           ))}
+                        </div>
+                     ) : (
+                        <div className="p-8 rounded-2xl border-2 border-dashed border-neutral-200 text-center text-neutral-400 text-sm">
+                           No addresses saved.
+                        </div>
+                     )}
                   </div>
 
                </div>

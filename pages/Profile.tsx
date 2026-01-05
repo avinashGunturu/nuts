@@ -24,13 +24,15 @@ export const Profile: React.FC = () => {
   const [verifyError, setVerifyError] = useState('');
 
   const [newAddress, setNewAddress] = useState({
-    label: 'Home',
-    address: '',
+    type: 'home' as 'home' | 'work' | 'billing' | 'other',
+    street: '',
     city: '',
     state: '',
-    pincode: '',
+    zip: '',
     isDefault: false
   });
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressError, setAddressError] = useState('');
 
   if (authLoading) {
     return (
@@ -73,11 +75,39 @@ export const Profile: React.FC = () => {
     }
   };
 
-  const handleAddAddress = (e: React.FormEvent) => {
+  const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    addAddress(newAddress);
-    setShowAddressModal(false);
-    setNewAddress({ label: 'Home', address: '', city: '', state: '', pincode: '', isDefault: false });
+    setAddressLoading(true);
+    setAddressError('');
+
+    try {
+      await addAddress({
+        type: newAddress.type,
+        street: newAddress.street,
+        city: newAddress.city,
+        state: newAddress.state,
+        zip: newAddress.zip,
+        isDefault: newAddress.isDefault
+      });
+      setShowAddressModal(false);
+      setNewAddress({ type: 'home', street: '', city: '', state: '', zip: '', isDefault: false });
+      setSuccess('Address added successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setAddressError(err.message || 'Failed to add address');
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    try {
+      await deleteAddress(id);
+      setSuccess('Address deleted successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete address');
+    }
   };
 
   // Open verification modal
@@ -409,20 +439,19 @@ export const Profile: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {addresses.map((addr) => (
-                      <div key={addr.id} className="p-8 rounded-[32px] border border-neutral-100 bg-neutral-50/30 hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all relative group">
+                      <div key={addr._id} className="p-8 rounded-[32px] border border-neutral-100 bg-neutral-50/30 hover:bg-white hover:shadow-2xl hover:-translate-y-1 transition-all relative group">
                         <div className="flex justify-between items-start mb-6">
                           <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] ${addr.isDefault ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-neutral-100 text-neutral-400'}`}>
-                            {addr.label}
+                            {addr.type}
                           </span>
                           <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all">
-                            <button className="w-8 h-8 rounded-full bg-neutral-50 text-neutral-400 hover:text-brand flex items-center justify-center transition-colors"><Settings size={16} /></button>
-                            <button onClick={() => deleteAddress(addr.id)} className="w-8 h-8 rounded-full bg-neutral-50 text-neutral-400 hover:text-error flex items-center justify-center transition-colors"><Trash2 size={16} /></button>
+                            <button onClick={() => handleDeleteAddress(addr._id!)} className="w-8 h-8 rounded-full bg-neutral-50 text-neutral-400 hover:text-error flex items-center justify-center transition-colors"><Trash2 size={16} /></button>
                           </div>
                         </div>
                         <p className="text-neutral-900 font-bold text-lg mb-2">{user?.name}</p>
                         <p className="text-neutral-500 leading-relaxed mb-6 font-light">
-                          {addr.address}<br />
-                          {addr.city}, {addr.state} - {addr.pincode}
+                          {addr.street}<br />
+                          {addr.city}, {addr.state} - {addr.zip}
                         </p>
                         <div className="flex items-center gap-2 text-neutral-400">
                           <Phone size={14} />
@@ -462,16 +491,22 @@ export const Profile: React.FC = () => {
             </div>
 
             <form onSubmit={handleAddAddress} className="p-10 space-y-6">
+              {addressError && (
+                <div className="p-4 bg-error-bg border border-error/10 rounded-2xl flex items-center gap-3 text-error text-sm font-medium">
+                  <AlertCircle size={20} className="shrink-0" />
+                  {addressError}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => setNewAddress({ ...newAddress, label: 'Home' })}
-                  className={`py-3 rounded-xl border-2 font-bold transition-all ${newAddress.label === 'Home' ? 'border-brand bg-brand-50 text-brand' : 'border-neutral-100 text-neutral-400'}`}
+                  onClick={() => setNewAddress({ ...newAddress, type: 'home' })}
+                  className={`py-3 rounded-xl border-2 font-bold transition-all ${newAddress.type === 'home' ? 'border-brand bg-brand-50 text-brand' : 'border-neutral-100 text-neutral-400'}`}
                 >Home</button>
                 <button
                   type="button"
-                  onClick={() => setNewAddress({ ...newAddress, label: 'Work' })}
-                  className={`py-3 rounded-xl border-2 font-bold transition-all ${newAddress.label === 'Work' ? 'border-brand bg-brand-50 text-brand' : 'border-neutral-100 text-neutral-400'}`}
+                  onClick={() => setNewAddress({ ...newAddress, type: 'work' })}
+                  className={`py-3 rounded-xl border-2 font-bold transition-all ${newAddress.type === 'work' ? 'border-brand bg-brand-50 text-brand' : 'border-neutral-100 text-neutral-400'}`}
                 >Work</button>
               </div>
 
@@ -480,8 +515,8 @@ export const Profile: React.FC = () => {
                 <input
                   type="text"
                   required
-                  value={newAddress.address}
-                  onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                  value={newAddress.street}
+                  onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
                   className="w-full px-5 py-4 rounded-xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50"
                   placeholder="Flat No, House, Street"
                 />
@@ -499,16 +534,27 @@ export const Profile: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1">Pincode</label>
+                  <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1">State</label>
                   <input
                     type="text"
                     required
-                    maxLength={6}
-                    value={newAddress.pincode}
-                    onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                    value={newAddress.state}
+                    onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
                     className="w-full px-5 py-4 rounded-xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1">Pincode</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={newAddress.zip}
+                  onChange={(e) => setNewAddress({ ...newAddress, zip: e.target.value })}
+                  className="w-full px-5 py-4 rounded-xl border border-neutral-100 focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all bg-neutral-50/50"
+                />
               </div>
 
               <div className="flex items-center gap-3 py-2 cursor-pointer" onClick={() => setNewAddress({ ...newAddress, isDefault: !newAddress.isDefault })}>
@@ -518,7 +564,7 @@ export const Profile: React.FC = () => {
                 <span className="text-sm font-bold text-neutral-600">Set as default address</span>
               </div>
 
-              <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20">Save Address</Button>
+              <Button type="submit" className="w-full py-5 text-lg shadow-xl shadow-brand/20" isLoading={addressLoading}>Save Address</Button>
             </form>
           </div>
         </div>

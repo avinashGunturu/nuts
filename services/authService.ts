@@ -209,3 +209,103 @@ export const verifyUserField = async (type: 'email' | 'phone', otp: string): Pro
         throw new Error('An unexpected error occurred during verification');
     }
 };
+
+// Address Management Types
+export interface AddressPayload {
+    type?: 'home' | 'work' | 'billing' | 'other';
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country?: string;
+    isDefault?: boolean;
+}
+
+// @desc Add a new address
+export const addUserAddress = async (address: AddressPayload): Promise<UserAddress[]> => {
+    const token = getAuthToken();
+    if (!token) throw new Error('No Authorization token found');
+
+    try {
+        const response = await fetch(`${API_URL}/address`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(address)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to add address');
+        }
+
+        return result.data.addresses;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred adding address');
+    }
+};
+
+// @desc Update an existing address
+export const updateUserAddress = async (addressId: string, address: Partial<AddressPayload>): Promise<UserAddress[]> => {
+    const token = getAuthToken();
+    if (!token) throw new Error('No Authorization token found');
+
+    try {
+        const response = await fetch(`${API_URL}/address/${addressId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(address)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to update address');
+        }
+
+        return result.data.addresses;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred updating address');
+    }
+};
+
+// @desc Delete an address
+export const deleteUserAddress = async (addressId: string): Promise<UserAddress[]> => {
+    const token = getAuthToken();
+    if (!token) throw new Error('No Authorization token found');
+
+    try {
+        const response = await fetch(`${API_URL}/address/${addressId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Failed to delete address');
+        }
+
+        return result.data.addresses;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred deleting address');
+    }
+};
