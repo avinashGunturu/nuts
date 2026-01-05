@@ -13,7 +13,8 @@ import {
    AlertCircle,
    XCircle,
    Loader2,
-   Package
+   Package,
+   ExternalLink
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { orderService, Order } from '../../services/orderService';
@@ -190,8 +191,8 @@ export const AdminOrders: React.FC = () => {
                         key={status}
                         onClick={() => { setStatusFilter(status); setPage(1); }}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${statusFilter === status
-                              ? 'bg-white text-neutral-900 shadow-sm'
-                              : 'text-neutral-500 hover:text-neutral-900'
+                           ? 'bg-white text-neutral-900 shadow-sm'
+                           : 'text-neutral-500 hover:text-neutral-900'
                            }`}
                      >
                         {statusLabels[status]}
@@ -223,13 +224,13 @@ export const AdminOrders: React.FC = () => {
                      <table className="w-full text-left">
                         <thead>
                            <tr className="bg-neutral-50/50">
-                              <th className="px-10 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Total Amount</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Payment</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
-                              <th className="px-10 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                              <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Total Amount</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Payment</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
+                              <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Actions</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-50">
@@ -237,34 +238,39 @@ export const AdminOrders: React.FC = () => {
                               const payment = getPaymentStatus(order);
                               return (
                                  <tr key={order._id} className="hover:bg-neutral-50/50 transition-colors group">
-                                    <td className="px-10 py-6">
-                                       <span className="text-sm font-bold text-neutral-900 group-hover:text-brand transition-colors">#{order.orderId}</span>
+                                    <td className="px-10 py-5">
+                                       <span className="text-xs font-bold text-brand font-mono group-hover:text-brand-dark transition-colors">#{order.orderId || order._id.slice(-6).toUpperCase()}</span>
                                     </td>
-                                    <td className="px-6 py-6">
-                                       <span className="text-sm font-bold text-neutral-700">{order.user?.name || 'Unknown'}</span>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                       <span className="text-sm text-neutral-500 font-medium">{formatDate(order.createdAt)}</span>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                       <span className="text-sm font-bold text-neutral-900">₹{order.finalAmount?.toLocaleString('en-IN') || 0}</span>
-                                    </td>
-                                    <td className="px-6 py-6">
-                                       <div className="flex items-center gap-2">
-                                          <div className={`w-1.5 h-1.5 rounded-full ${payment.color}`}></div>
-                                          <span className="text-xs font-bold text-neutral-600">{payment.label}</span>
+                                    <td className="px-6 py-5">
+                                       <div className="flex items-center gap-3">
+                                          <div className="w-8 h-8 rounded-full bg-brand-50 text-brand flex items-center justify-center text-xs font-bold uppercase">
+                                             {order.user?.name?.[0] || 'U'}
+                                          </div>
+                                          <span className="text-sm font-bold text-neutral-700">{order.user?.name || 'Unknown'}</span>
                                        </div>
                                     </td>
-                                    <td className="px-6 py-6">
-                                       <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] flex items-center w-fit gap-1.5 ${getStatusStyle(order.status)}`}>
+                                    <td className="px-6 py-5">
+                                       <span className="text-sm text-neutral-500 font-medium whitespace-nowrap">{formatDate(order.createdAt)}</span>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                       <span className="text-sm font-bold text-neutral-900">₹{order.finalAmount?.toLocaleString('en-IN') || 0}</span>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                       <div className="flex items-center gap-2">
+                                          <div className={`w-1.5 h-1.5 rounded-full ${payment.color}`}></div>
+                                          <span className="text-xs font-bold text-neutral-600 uppercase tracking-wider">{payment.label}</span>
+                                       </div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center w-fit gap-1.5 ${getStatusStyle(order.status)}`}>
                                           {getStatusIcon(order.status)}
                                           {order.status}
                                        </span>
                                     </td>
-                                    <td className="px-10 py-6 text-right">
-                                       <Link to={`/dashboard/orders/${order.orderId}`}>
-                                          <button className="w-10 h-10 rounded-xl bg-neutral-50 text-neutral-400 hover:text-brand hover:bg-brand-50 flex items-center justify-center transition-all">
-                                             <Eye size={18} />
+                                    <td className="px-10 py-5 text-right">
+                                       <Link to={`/dashboard/orders/${order.orderId || order._id}`}>
+                                          <button className="text-neutral-300 hover:text-brand transition-all transform hover:scale-110 p-2">
+                                             <ExternalLink size={18} />
                                           </button>
                                        </Link>
                                     </td>
@@ -276,27 +282,27 @@ export const AdminOrders: React.FC = () => {
                   </div>
 
                   {/* Pagination */}
-                  <div className="px-10 py-8 bg-neutral-50/50 flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto">
-                     <p className="text-sm text-neutral-500 font-medium">
-                        Showing <span className="text-neutral-900 font-bold">{((page - 1) * pagination.limit) + 1} to {Math.min(page * pagination.limit, pagination.total)}</span> of <span className="text-neutral-900 font-bold">{pagination.total}</span> entries
+                  <div className="px-10 py-6 border-t border-neutral-50 flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto">
+                     <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">
+                        Showing <span className="text-neutral-900">{((page - 1) * pagination.limit) + 1}-{Math.min(page * pagination.limit, pagination.total)}</span> of <span className="text-neutral-900">{pagination.total}</span>
                      </p>
-                     <div className="flex items-center gap-4">
+                     <div className="flex items-center gap-2">
                         <button
                            onClick={() => setPage(p => Math.max(1, p - 1))}
                            disabled={page === 1}
-                           className="p-2 rounded-xl border border-neutral-200 bg-white text-neutral-400 hover:text-brand transition-colors disabled:opacity-50"
+                           className="w-8 h-8 rounded-full border border-neutral-200 bg-white text-neutral-400 hover:text-brand hover:border-brand transition-all disabled:opacity-30 flex items-center justify-center"
                         >
-                           <ChevronLeft size={20} />
+                           <ChevronLeft size={16} />
                         </button>
-                        <span className="text-sm font-bold text-neutral-700">
-                           Page {page} of {pagination.pages || 1}
+                        <span className="text-xs font-bold text-neutral-900 min-w-[60px] text-center">
+                           Page {page} / {pagination.pages || 1}
                         </span>
                         <button
                            onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
                            disabled={page >= pagination.pages}
-                           className="p-2 rounded-xl border border-neutral-200 bg-white text-neutral-400 hover:text-brand transition-colors disabled:opacity-50"
+                           className="w-8 h-8 rounded-full border border-neutral-200 bg-white text-neutral-400 hover:text-brand hover:border-brand transition-all disabled:opacity-30 flex items-center justify-center"
                         >
-                           <ChevronRight size={20} />
+                           <ChevronRight size={16} />
                         </button>
                      </div>
                   </div>
