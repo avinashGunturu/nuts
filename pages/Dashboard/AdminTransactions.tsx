@@ -126,11 +126,11 @@ export const AdminTransactions: React.FC = () => {
                </div>
                <p className="text-neutral-500 font-medium">Monitor your revenue flow and Razorpay settlement history.</p>
             </div>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
                <Button variant="outline" size="sm" className="bg-white gap-2">
                   <Download size={18} /> Export Settlement
                </Button>
-            </div>
+            </div> */}
          </div>
 
          {/* Stats Summary */}
@@ -190,8 +190,8 @@ export const AdminTransactions: React.FC = () => {
                         key={status}
                         onClick={() => { setStatusFilter(status); setPage(1); }}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap capitalize ${statusFilter === status
-                              ? 'bg-white text-neutral-900 shadow-sm'
-                              : 'text-neutral-500 hover:text-neutral-900'
+                           ? 'bg-white text-neutral-900 shadow-sm'
+                           : 'text-neutral-500 hover:text-neutral-900'
                            }`}
                      >
                         {status}
@@ -219,64 +219,64 @@ export const AdminTransactions: React.FC = () => {
                </div>
             ) : (
                <>
-                  <div className="overflow-x-auto flex-1">
+                  <div className="overflow-x-auto flex-1 no-scrollbar">
                      <table className="w-full text-left">
                         <thead>
                            <tr className="bg-neutral-50/50">
-                              <th className="px-10 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Payment ID</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Amount</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Gateway</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
-                              <th className="px-6 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
-                              <th className="px-10 py-6 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Order</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Payment ID</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Amount</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Gateway</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
+                              <th className="px-4 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Order</th>
                            </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-50">
                            {transactions.map((txn) => (
                               <tr key={txn._id} className="hover:bg-neutral-50/50 transition-colors group">
-                                 <td className="px-10 py-6">
+                                 <td className="px-6 py-5">
                                     <code className="text-[11px] font-bold text-brand bg-brand-50 px-2 py-1 rounded-lg">
                                        {txn.paymentId}
                                     </code>
                                  </td>
-                                 <td className="px-6 py-6">
-                                    <span className="text-sm font-bold text-neutral-900">
+                                 <td className="px-4 py-5">
+                                    <span className="text-xs font-bold text-neutral-700 break-all">
                                        {txn.orderDetails?.orderId || txn.orderId || '—'}
                                     </span>
                                  </td>
-                                 <td className="px-6 py-6">
+                                 <td className="px-4 py-5">
                                     <span className="text-sm font-bold text-neutral-700">
                                        {txn.customer?.name || 'Unknown'}
                                     </span>
                                  </td>
-                                 <td className="px-6 py-6">
+                                 <td className="px-4 py-5">
                                     <span className="text-sm font-bold text-neutral-900">
                                        {txn.currency === 'INR' ? '₹' : txn.currency}{txn.amount.toLocaleString('en-IN')}
                                     </span>
                                  </td>
-                                 <td className="px-6 py-6">
+                                 <td className="px-4 py-5">
                                     <div className="flex items-center gap-2">
                                        <CreditCard size={14} className="text-neutral-400" />
                                        <span className="text-xs font-bold text-neutral-500 capitalize">{txn.gateway}</span>
                                     </div>
                                  </td>
-                                 <td className="px-6 py-6">
-                                    <span className="text-sm text-neutral-500 font-medium whitespace-nowrap">
+                                 <td className="px-4 py-5">
+                                    <span className="text-xs text-neutral-500 font-medium whitespace-nowrap">
                                        {formatDate(txn.createdAt)}
                                     </span>
                                  </td>
-                                 <td className="px-6 py-6">
-                                    <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] flex items-center w-fit gap-1.5 ${getStatusStyle(txn.status)}`}>
+                                 <td className="px-4 py-5">
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center w-fit gap-1.5 ${getStatusStyle(txn.status)}`}>
                                        {getStatusIcon(txn.status)}
                                        {txn.status}
                                     </span>
                                  </td>
-                                 <td className="px-10 py-6 text-right">
+                                 <td className="px-6 py-5 text-right">
                                     {txn.orderDetails?.orderId ? (
                                        <Link to={`/dashboard/orders/${txn.orderDetails.orderId}`}>
-                                          <button className="w-10 h-10 rounded-xl bg-neutral-50 text-neutral-400 hover:text-brand hover:bg-brand-50 flex items-center justify-center transition-all" title="View Linked Order">
+                                          <button className="text-neutral-300 hover:text-brand transition-all transform hover:scale-110 p-2" title="View Linked Order">
                                              <ExternalLink size={18} />
                                           </button>
                                        </Link>

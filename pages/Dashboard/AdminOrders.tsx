@@ -149,11 +149,11 @@ export const AdminOrders: React.FC = () => {
                <h1 className="text-4xl font-bold text-neutral-900 tracking-tight">Orders Management</h1>
                <p className="text-neutral-500 mt-2 font-medium">Track and manage customer orders across all channels.</p>
             </div>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
                <Button variant="outline" size="sm" className="bg-white gap-2">
                   <Download size={18} /> Export CSV
                </Button>
-            </div>
+            </div> */}
          </div>
 
          {/* Stats Summary Bar */}
