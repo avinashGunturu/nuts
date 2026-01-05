@@ -5,27 +5,37 @@ import { Button } from './Button';
 import { useNavigate } from 'react-router-dom';
 
 export const CartDrawer: React.FC = () => {
-  const { cart, isCartOpen, closeCart, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { cart, isCartOpen, closeCart, updateQuantity, removeFromCart, cartTotal, saveCartNow } = useCart();
   const navigate = useNavigate();
+  const [isCheckingOut, setIsCheckingOut] = React.useState(false);
 
   if (!isCartOpen) return null;
 
-  const handleCheckout = () => {
-    closeCart();
-    navigate('/checkout');
+  const handleCheckout = async () => {
+    setIsCheckingOut(true);
+    try {
+      await saveCartNow();
+      closeCart();
+      navigate('/checkout');
+    } catch (error) {
+      console.error("Failed to proceed to checkout", error);
+      // Ideally show a toast here
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity"
         onClick={closeCart}
       />
-      
+
       {/* Drawer */}
       <div className="fixed top-0 right-0 h-full w-full md:w-[450px] bg-white z-[70] shadow-2xl flex flex-col animate-fade-in-up md:animate-none md:transition-transform duration-300 transform translate-x-0">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-neutral-100">
           <h2 className="text-xl font-bold flex items-center gap-2">
@@ -33,7 +43,7 @@ export const CartDrawer: React.FC = () => {
             Your Cart
             <span className="text-sm font-normal text-neutral-500 ml-2">({cart.length} items)</span>
           </h2>
-          <button 
+          <button
             onClick={closeCart}
             className="p-2 hover:bg-neutral-100 rounded-full transition-colors text-neutral-500"
           >
@@ -57,10 +67,10 @@ export const CartDrawer: React.FC = () => {
               <div key={`${item.id}-${item.selectedWeight}`} className="flex gap-4 group">
                 {/* Image */}
                 <div className="w-24 h-24 rounded-2xl bg-neutral-50 overflow-hidden flex-shrink-0 border border-neutral-100">
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover" 
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
                     loading="lazy"
                   />
                 </div>
@@ -70,7 +80,7 @@ export const CartDrawer: React.FC = () => {
                   <div>
                     <div className="flex justify-between items-start">
                       <h4 className="font-bold text-neutral-900 text-base leading-tight mb-1">{item.name}</h4>
-                      <button 
+                      <button
                         onClick={() => removeFromCart(item.id, item.selectedWeight)}
                         className="text-neutral-300 hover:text-red-500 transition-colors"
                       >
@@ -82,7 +92,7 @@ export const CartDrawer: React.FC = () => {
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-3 bg-neutral-50 rounded-full px-2 py-1 border border-neutral-100">
-                      <button 
+                      <button
                         onClick={() => updateQuantity(item.id, item.selectedWeight, -1)}
                         className="w-6 h-6 rounded-full flex items-center justify-center bg-white shadow-sm hover:text-brand disabled:opacity-50 text-neutral-600"
                         disabled={item.quantity <= 1}
@@ -90,9 +100,9 @@ export const CartDrawer: React.FC = () => {
                         <Minus size={12} />
                       </button>
                       <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                      <button 
-                         onClick={() => updateQuantity(item.id, item.selectedWeight, 1)}
-                         className="w-6 h-6 rounded-full flex items-center justify-center bg-white shadow-sm hover:text-brand text-neutral-600"
+                      <button
+                        onClick={() => updateQuantity(item.id, item.selectedWeight, 1)}
+                        className="w-6 h-6 rounded-full flex items-center justify-center bg-white shadow-sm hover:text-brand text-neutral-600"
                       >
                         <Plus size={12} />
                       </button>
@@ -108,26 +118,33 @@ export const CartDrawer: React.FC = () => {
         {/* Footer */}
         {cart.length > 0 && (
           <div className="p-6 border-t border-neutral-100 bg-neutral-50/50">
-             <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-neutral-600">
-                   <span>Subtotal</span>
-                   <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-neutral-600">
-                   <span>Shipping</span>
-                   <span className="text-green-600 font-medium">Free</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold text-neutral-900 pt-3 border-t border-neutral-200">
-                   <span>Total</span>
-                   <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-                </div>
-             </div>
-             <Button className="w-full justify-between group" size="lg" onClick={handleCheckout}>
-                <span>Checkout</span>
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between text-neutral-600">
+                <span>Subtotal</span>
+                <span>₹{cartTotal.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-neutral-600">
+                <span>Shipping</span>
+                <span className="text-green-600 font-medium">Free</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold text-neutral-900 pt-3 border-t border-neutral-200">
+                <span>Total</span>
+                <span>₹{cartTotal.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+            <Button
+              className="w-full justify-between group"
+              size="lg"
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+            >
+              <span>{isCheckingOut ? 'Processing...' : 'Checkout'}</span>
+              {!isCheckingOut && (
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm">
-                   ₹{cartTotal.toLocaleString('en-IN')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  ₹{cartTotal.toLocaleString('en-IN')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </div>
-             </Button>
+              )}
+            </Button>
           </div>
         )}
       </div>

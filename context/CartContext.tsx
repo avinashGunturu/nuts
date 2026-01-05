@@ -14,6 +14,7 @@ interface CartContextType {
   cartTotal: number;
   cartCount: number;
   syncCartFromServer: () => Promise<{ restored: boolean; itemCount: number }>;
+  saveCartNow: () => Promise<void>; // Explicitly save cart to server (for checkout)
   isSyncing: boolean;
 }
 
@@ -69,104 +70,114 @@ const getProductPriceAndWeight = (product: any, selectedWeight: string): { price
 // Check if user is authenticated
 const isAuthenticated = (): boolean => {
   const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
-  return !!match;
+  if (match) return true;
+  return !!localStorage.getItem('token');
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isInitialMount = useRef(true);
+  const hasLoadedFromServer = useRef(false);
+  const isInitialized = useRef(false);
 
-  // Load cart from local storage on mount
+  // Load cart from local storage on mount, then fetch from server for logged-in users
   useEffect(() => {
-    const savedCart = localStorage.getItem('kcnuts_cart');
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Failed to parse cart", e);
+    const initializeCart = async () => {
+      // First load from localStorage for instant UI
+      const savedCart = localStorage.getItem('kcnuts_cart');
+      let localCart: CartItem[] = [];
+      if (savedCart) {
+        try {
+          localCart = JSON.parse(savedCart);
+          setCart(localCart);
+          console.log('[Cart] Loaded from localStorage:', localCart.length, 'items');
+        } catch (e) {
+          console.error("[Cart] Failed to parse local cart", e);
+        }
       }
-    }
+
+      // Then fetch from server if authenticated
+      if (isAuthenticated() && !hasLoadedFromServer.current) {
+        hasLoadedFromServer.current = true;
+        setIsSyncing(true);
+        try {
+          console.log('[Cart] Fetching cart from server on mount...');
+          const serverCart = await getCartFromServer();
+
+          if (serverCart.items && serverCart.items.length > 0) {
+            console.log('[Cart] Server has', serverCart.items.length, 'items');
+            // Convert server items to CartItem format
+            const restoredItems: CartItem[] = serverCart.items.map((item: any) => ({
+              id: item.productId,
+              name: item.name || 'Product',
+              price: item.price,
+              weight: item.weight || '500g',
+              image: item.image || '',
+              category: '',
+              rating: 0,
+              description: '',
+              quantity: item.quantity,
+              selectedWeight: item.weight || '500g',
+              calculatedPrice: item.price,
+              variantId: item.variantId
+            }));
+
+            // If local cart is empty OR server has items, use server cart
+            // This prevents losing server cart on reload
+            if (localCart.length === 0) {
+              console.log('[Cart] Local cart empty, restoring from server');
+              setCart(restoredItems);
+            } else {
+              console.log('[Cart] Local cart has items, keeping local cart');
+              // Local cart takes priority - user may have added items offline
+            }
+          } else {
+            console.log('[Cart] Server cart is empty');
+          }
+        } catch (error) {
+          console.error('[Cart] Failed to fetch from server:', error);
+        } finally {
+          setIsSyncing(false);
+        }
+      }
+
+      // Mark as initialized after first load attempt
+      isInitialized.current = true;
+    };
+
+    initializeCart();
   }, []);
 
-  // Save cart to local storage and sync to server (debounced)
+  // Save to localStorage whenever cart changes (skip first render to avoid overwriting)
   useEffect(() => {
+    if (!isInitialized.current) {
+      return; // Skip first render - let initialization load existing data first
+    }
     localStorage.setItem('kcnuts_cart', JSON.stringify(cart));
+    console.log('[Cart] Saved to localStorage:', cart.length, 'items');
+  }, [cart]);
 
-    // Skip sync on initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+  // Explicitly save cart to server (call this on checkout or when user wants to sync)
+  const saveCartNow = useCallback(async (): Promise<void> => {
+    if (!isAuthenticated()) {
+      console.warn('[Cart] Cannot save to server - not authenticated');
       return;
     }
 
-    // Debounced sync to server for logged-in users
-    if (isAuthenticated() && cart.length >= 0) {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-
-      syncTimeoutRef.current = setTimeout(async () => {
-        try {
-          await saveCartToServer(cart);
-          console.log('[Cart] Synced to server');
-        } catch (error) {
-          console.error('[Cart] Sync failed:', error);
-        }
-      }, 1500); // Debounce: wait 1.5s after last change
-    }
-
-    return () => {
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-    };
-  }, [cart]);
-
-  // Sync cart from server (called on login)
-  const syncCartFromServer = useCallback(async (): Promise<{ restored: boolean; itemCount: number }> => {
-    if (!isAuthenticated()) {
-      return { restored: false, itemCount: 0 };
+    if (cart.length === 0) {
+      console.log('[Cart] Cart is empty, nothing to save');
+      return;
     }
 
     setIsSyncing(true);
     try {
-      const serverCart = await getCartFromServer();
-
-      if (serverCart.items && serverCart.items.length > 0) {
-        // Convert server items to CartItem format
-        const restoredItems: CartItem[] = serverCart.items.map((item: any) => ({
-          id: item.productId,
-          name: item.name || 'Product',
-          price: item.price,
-          weight: item.weight || '500g',
-          image: item.image || '',
-          category: '',
-          rating: 0,
-          description: '',
-          quantity: item.quantity,
-          selectedWeight: item.weight || '500g',
-          calculatedPrice: item.price,
-          variantId: item.variantId
-        }));
-
-        // Merge strategy: If local cart is empty, use server cart
-        // If both have items, prefer local cart but notify user
-        if (cart.length === 0) {
-          setCart(restoredItems);
-          return { restored: true, itemCount: restoredItems.length };
-        } else {
-          // Local cart has items - keep local, but save to server
-          await saveCartToServer(cart);
-          return { restored: false, itemCount: cart.length };
-        }
-      }
-
-      return { restored: false, itemCount: 0 };
+      console.log('[Cart] Explicitly saving cart to server...');
+      await saveCartToServer(cart);
+      console.log('[Cart] Cart saved to server successfully');
     } catch (error) {
-      console.error('[Cart] Failed to sync from server:', error);
-      return { restored: false, itemCount: 0 };
+      console.error('[Cart] Failed to save cart to server:', error);
+      throw error;
     } finally {
       setIsSyncing(false);
     }
@@ -269,6 +280,48 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const cartTotal = cart.reduce((total, item) => total + (item.calculatedPrice * item.quantity), 0);
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
+  // Sync cart from server - reloads server cart (useful after login)
+  const syncCartFromServer = useCallback(async (): Promise<{ restored: boolean; itemCount: number }> => {
+    if (!isAuthenticated()) {
+      return { restored: false, itemCount: 0 };
+    }
+
+    setIsSyncing(true);
+    try {
+      console.log('[Cart] Syncing cart from server...');
+      const serverCart = await getCartFromServer();
+
+      if (serverCart.items && serverCart.items.length > 0) {
+        const restoredItems: CartItem[] = serverCart.items.map((item: any) => ({
+          id: item.productId,
+          name: item.name || 'Product',
+          price: item.price,
+          weight: item.weight || '500g',
+          image: item.image || '',
+          category: '',
+          rating: 0,
+          description: '',
+          quantity: item.quantity,
+          selectedWeight: item.weight || '500g',
+          calculatedPrice: item.price,
+          variantId: item.variantId
+        }));
+
+        setCart(restoredItems);
+        localStorage.setItem('kcnuts_cart', JSON.stringify(restoredItems));
+        console.log('[Cart] Restored', restoredItems.length, 'items from server');
+        return { restored: true, itemCount: restoredItems.length };
+      }
+
+      return { restored: false, itemCount: 0 };
+    } catch (error) {
+      console.error('[Cart] Failed to sync from server:', error);
+      return { restored: false, itemCount: 0 };
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
   return (
     <CartContext.Provider value={{
       cart,
@@ -282,6 +335,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cartTotal,
       cartCount,
       syncCartFromServer,
+      saveCartNow,
       isSyncing
     }}>
       {children}
