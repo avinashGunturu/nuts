@@ -300,7 +300,7 @@ export const Login: React.FC = () => {
           )}
 
           {/* Social Proof Placeholder */}
-          <div className="mt-12 text-center">
+          {/* <div className="mt-12 text-center">
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-neutral-100" />
@@ -315,7 +315,7 @@ export const Login: React.FC = () => {
                 Create Account
               </Button>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

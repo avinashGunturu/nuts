@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sendOtp, verifyOtp, User } from '../services/authService';
 import { Button } from '../components/Button';
-import { ArrowRight, AlertCircle, ShieldCheck, Mail, Phone, Lock } from 'lucide-react';
+import { ArrowRight, AlertCircle, ShieldCheck, Mail, Phone, Lock, RefreshCw } from 'lucide-react';
 
 export const AdminLogin: React.FC = () => {
     const [step, setStep] = useState<1 | 2>(1);
@@ -11,15 +11,55 @@ export const AdminLogin: React.FC = () => {
     const [otp, setOtp] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [inputType, setInputType] = useState<'email' | 'phone'>('phone');
+    const [inputType, setInputType] = useState<'email' | 'phone'>('email');
+    const [resendTimer, setResendTimer] = useState(0);
 
     const { fetchUserProfile } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [resendTimer]);
+
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    };
 
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+
+        // Custom validation
+        if (!identifier.trim()) {
+            setError(inputType === 'phone' ? 'Please enter your mobile number' : 'Please enter your email address');
+            setIsLoading(false);
+            return;
+        }
+
+        if (inputType === 'phone') {
+            const phoneRegex = /^[6-9]\d{9}$/;
+            if (!phoneRegex.test(identifier)) {
+                setError('Please enter a valid 10-digit Indian mobile number');
+                setIsLoading(false);
+                return;
+            }
+        } else {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(identifier)) {
+                setError('Please enter a valid email address');
+                setIsLoading(false);
+                return;
+            }
+        }
 
         try {
             const payload = inputType === 'phone'
@@ -28,8 +68,30 @@ export const AdminLogin: React.FC = () => {
 
             await sendOtp(payload);
             setStep(2);
+            setResendTimer(300); // Start 5 min timer
         } catch (err: any) {
             setError(err.message || 'Failed to send OTP');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (resendTimer > 0) return;
+
+        setIsLoading(true);
+        setError('');
+        setOtp('');
+
+        try {
+            const payload = inputType === 'phone'
+                ? { phone: identifier }
+                : { email: identifier };
+
+            await sendOtp(payload);
+            setResendTimer(300); // Reset 5 min timer
+        } catch (err: any) {
+            setError(err.message || 'Failed to resend OTP');
         } finally {
             setIsLoading(false);
         }
@@ -40,6 +102,19 @@ export const AdminLogin: React.FC = () => {
         setIsLoading(true);
         setError('');
 
+        // OTP validation - must be exactly 6 digits
+        if (!otp.trim()) {
+            setError('Please enter the OTP sent to your device');
+            setIsLoading(false);
+            return;
+        }
+
+        const otpRegex = /^\d{6}$/;
+        if (!otpRegex.test(otp)) {
+            setError('OTP must be exactly 6 digits');
+            setIsLoading(false);
+            return;
+        }
         try {
             const payload = inputType === 'phone'
                 ? { phone: identifier, otp }
@@ -99,7 +174,7 @@ export const AdminLogin: React.FC = () => {
                     )}
 
                     {step === 1 ? (
-                        <form className="space-y-6" onSubmit={handleSendOtp}>
+                        <form className="space-y-6" onSubmit={handleSendOtp} noValidate>
                             <div>
                                 <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
                                     {inputType === 'phone' ? 'Mobile Number' : 'Email Address'}
@@ -121,13 +196,13 @@ export const AdminLogin: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between">
+                            {/* <div className="flex items-center justify-between">
                                 <div className="text-sm">
                                     <button type="button" onClick={toggleInputType} className="font-medium text-brand hover:text-brand-dark">
                                         Use {inputType === 'phone' ? 'Email' : 'Phone'} instead
                                     </button>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div>
                                 <Button
@@ -140,7 +215,7 @@ export const AdminLogin: React.FC = () => {
                             </div>
                         </form>
                     ) : (
-                        <form className="space-y-6" onSubmit={handleVerifyOtp}>
+                        <form className="space-y-6" onSubmit={handleVerifyOtp} noValidate>
                             <div>
                                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
                                     Enter OTP
@@ -153,21 +228,44 @@ export const AdminLogin: React.FC = () => {
                                         id="otp"
                                         name="otp"
                                         type="text"
-                                        required
+                                        inputMode="numeric"
+                                        pattern="[0-9]*"
                                         value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
+                                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                         className="focus:ring-brand focus:border-brand block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 border"
                                         placeholder="123456"
+                                        maxLength={6}
                                     />
                                 </div>
-                                <p className="mt-2 text-xs text-gray-500">
-                                    OTP sent to {identifier}
-                                </p>
+                                <div className="flex items-center justify-between mt-4">
+                                    <p className="text-xs text-gray-500">
+                                        OTP sent to <span className="font-semibold">{identifier}</span>
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleResendOtp}
+                                        disabled={resendTimer > 0 || isLoading}
+                                        className={`text-xs font-medium flex items-center gap-1 ${resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-brand hover:underline'}`}
+                                    >
+                                        {isLoading && resendTimer === 0 ? 'Sending...' : (
+                                            resendTimer > 0 ? (
+                                                <span>Resend in {formatTime(resendTimer)}</span>
+                                            ) : (
+                                                <><RefreshCw size={12} /> Resend OTP</>
+                                            )
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="flex items-center justify-between">
                                 <div className="text-sm">
-                                    <button type="button" onClick={() => setStep(1)} className="font-medium text-brand hover:text-brand-dark">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setStep(1); setOtp(''); setError(''); setResendTimer(0); }}
+                                        disabled={resendTimer > 0}
+                                        className={`font-medium ${resendTimer > 0 ? 'text-gray-300 cursor-not-allowed' : 'text-brand hover:text-brand-dark'}`}
+                                    >
                                         Change {inputType === 'phone' ? 'Number' : 'Email'}
                                     </button>
                                 </div>
