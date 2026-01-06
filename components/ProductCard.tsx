@@ -116,6 +116,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
 
     onAddToCart(product, quantity, selectedWeight);
     setIsAdded(true);
+    setQuantity(1); // Reset quantity after adding to cart
 
     // Reset button state after 1.5 seconds
     setTimeout(() => {

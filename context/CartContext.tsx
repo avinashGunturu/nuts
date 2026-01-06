@@ -237,9 +237,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
 
       if (existingItemIndex > -1) {
-        const newCart = [...prev];
-        newCart[existingItemIndex].quantity += quantity;
-        return newCart;
+        // Create new array with new item object to avoid mutation issues with StrictMode
+        return prev.map((item, index) =>
+          index === existingItemIndex
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
       } else {
         // Create a normalized cart item
         const cartItem: CartItem = {
