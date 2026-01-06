@@ -62,12 +62,12 @@ export const Footer: React.FC = () => {
               &copy; {new Date().getFullYear()} KCnuts Dry Fruits. Made with love in India.
             </p>
             <span className="hidden md:block text-neutral-300">|</span>
-            <Link
+            {/* <Link
               to="/dashboard"
               className="text-caption text-neutral-400 hover:text-brand transition-colors flex items-center gap-1 opacity-60 hover:opacity-100"
             >
               <Lock size={12} /> Admin Portal
-            </Link>
+            </Link> */}
           </div>
           <div className="flex items-center gap-2 text-caption text-subtext-color">
             <Mail size={14} />

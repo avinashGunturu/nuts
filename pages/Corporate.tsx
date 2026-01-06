@@ -90,7 +90,7 @@ export const Corporate: React.FC = () => {
             requirements: `Type: ${formData.requirement}, Business: ${formData.businessType}. Details: ${formData.message}`
          };
 
-         const response = await fetch('http://localhost:5001/api/wholesale/inquiry', {
+         const response = await fetch('https://nutsb.onrender.com/api/wholesale/inquiry', {
             method: 'POST',
             headers: {
                'Content-Type': 'application/json'

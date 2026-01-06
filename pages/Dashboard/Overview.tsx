@@ -41,7 +41,7 @@ export const DashboardOverview: React.FC = () => {
    useEffect(() => {
       const fetchStats = async () => {
          try {
-            const response = await axios.get('http://localhost:5001/api/admin/dashboard/stats', {
+            const response = await axios.get('https://nutsb.onrender.com/api/admin/dashboard/stats', {
                withCredentials: true
             });
             if (response.data.success) {
