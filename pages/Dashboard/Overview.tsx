@@ -17,6 +17,14 @@ import { Button } from '../../components/Button';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { API_CONFIG } from '../../config';
+
+// Helper to get auth token from cookie or localStorage
+const getAuthToken = (): string | null => {
+   const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
+   if (match) return match[2];
+   return localStorage.getItem('token');
+};
 
 interface DashboardStats {
    stats: {
@@ -41,8 +49,12 @@ export const DashboardOverview: React.FC = () => {
    useEffect(() => {
       const fetchStats = async () => {
          try {
-            const response = await axios.get('https://nutsb.onrender.com/api/admin/dashboard/stats', {
-               withCredentials: true
+            const token = getAuthToken();
+            const response = await axios.get(`${API_CONFIG.BASE_URL}/admin/dashboard/stats`, {
+               withCredentials: true,
+               headers: {
+                  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+               }
             });
             if (response.data.success) {
                setData(response.data.data);
