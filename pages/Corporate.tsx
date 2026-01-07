@@ -217,87 +217,114 @@ export const Corporate: React.FC = () => {
             </div>
          </section>
 
-         {/* Industries We Serve */}
+         {/* Who We Supply */}
          <section className="py-24 bg-white border-b border-neutral-100">
             <div className="container mx-auto px-6 md:px-12">
                <div className="text-center max-w-3xl mx-auto mb-16">
-                  <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">Tailored Solutions for Your Business</h2>
-                  <p className="text-neutral-500 text-lg">We provide reliable supply chains for diverse commercial needs.</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">We Supply Cashews in Bulk To</h2>
+                  <p className="text-neutral-500 text-lg">Reliable supply chains for diverse commercial needs across India.</p>
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                   {[
                      {
-                        icon: ChefHat,
-                        title: "HoReCa (Hotels & Restaurants)",
-                        desc: "Bulk cashew paste, premium nuts for garnishing, and consistent quality ingredients for your signature dishes.",
-                        color: "bg-orange-50 text-orange-600"
+                        icon: Building2,
+                        title: "Traders",
+                        color: "bg-blue-50 text-blue-600"
                      },
                      {
                         icon: Store,
-                        title: "Retail & Supermarkets",
-                        desc: "Stock our premium branded packs or get white-labeled products for your store shelves.",
+                        title: "Retail Chains",
                         color: "bg-green-50 text-green-600"
                      },
                      {
+                        icon: ChefHat,
+                        title: "Sweet Manufacturers",
+                        color: "bg-orange-50 text-orange-600"
+                     },
+                     {
                         icon: Package,
-                        title: "Bakeries & Confectioneries",
-                        desc: "High-grade almonds, pistachios, and walnuts for cakes, cookies, and traditional sweets.",
+                        title: "HoReCa Buyers",
                         color: "bg-purple-50 text-purple-600"
+                     },
+                     {
+                        icon: Briefcase,
+                        title: "Exporters",
+                        color: "bg-teal-50 text-teal-600"
                      }
                   ].map((item, idx) => (
-                     <div key={idx} className="p-8 rounded-3xl border border-neutral-100 hover:border-brand-100 hover:shadow-lg transition-all duration-300 group">
-                        <div className={`w-14 h-14 rounded-2xl ${item.color} flex items-center justify-center mb-6`}>
-                           <item.icon size={28} />
+                     <div key={idx} className="p-6 rounded-2xl border border-neutral-100 hover:border-brand-100 hover:shadow-lg transition-all duration-300 text-center group">
+                        <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center mb-4 mx-auto`}>
+                           <item.icon size={24} />
                         </div>
-                        <h3 className="text-xl font-bold text-neutral-900 mb-3">{item.title}</h3>
-                        <p className="text-neutral-500 leading-relaxed text-sm">{item.desc}</p>
+                        <h3 className="font-bold text-neutral-900">{item.title}</h3>
                      </div>
                   ))}
+               </div>
+
+               {/* MOQ Info */}
+               <div className="mt-12 text-center">
+                  <div className="inline-flex items-center gap-3 px-6 py-3 bg-brand-50 rounded-full border border-brand-100">
+                     <span className="font-bold text-brand-dark">Minimum Order Quantity (MOQ):</span>
+                     <span className="text-neutral-600">Depends on grade & availability</span>
+                  </div>
                </div>
             </div>
          </section>
 
-         {/* Value Propositions */}
+         {/* Why Buy from Us */}
          <section className="py-24 bg-neutral-50">
             <div className="container mx-auto px-6 md:px-12">
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               <div className="text-center max-w-3xl mx-auto mb-16">
+                  <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">Why Buy from Us?</h2>
+                  <p className="text-neutral-500 text-lg">Direct from factory to your business with unmatched quality and service.</p>
+               </div>
+
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
                      {
-                        title: "Wholesale Pricing",
-                        desc: "Get access to our exclusive B2B price list. Tiered discounts available for bulk quantities above 50kg.",
-                        img: "https://images.unsplash.com/photo-1596328330761-46820572d421?q=80&w=800&auto=format&fit=crop"
+                        icon: Building2,
+                        title: "Direct Factory Supply",
+                        desc: "No middlemen, no inflated prices. Get cashews straight from our processing unit.",
+                        color: "bg-brand-50 text-brand"
                      },
                      {
-                        title: "Quality Assurance",
-                        desc: "Every batch is tested for moisture, size, and taste. We ensure consistency so your end product is always perfect.",
-                        img: "https://images.unsplash.com/photo-1508061253366-f7da158b6d90?q=80&w=800&auto=format&fit=crop"
+                        icon: CheckCircle2,
+                        title: "Consistent Grading",
+                        desc: "All kernels are factory graded and quality checked for uniformity.",
+                        color: "bg-green-50 text-green-600"
                      },
                      {
-                        title: "Pan-India Logistics",
-                        desc: "Reliable shipping network across India. GST invoicing and credit facilities for verified partners.",
-                        img: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?q=80&w=800&auto=format&fit=crop"
+                        icon: Trophy,
+                        title: "Competitive Bulk Pricing",
+                        desc: "Best-in-market prices with tiered discounts for larger orders.",
+                        color: "bg-orange-50 text-orange-600"
+                     },
+                     {
+                        icon: Package,
+                        title: "Reliable Dispatch",
+                        desc: "Orders dispatched within 48 hours with pan-India delivery.",
+                        color: "bg-purple-50 text-purple-600"
                      }
-                  ].map((service, idx) => (
-                     <div key={idx} className="group rounded-[32px] overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300">
-                        <div className="h-56 overflow-hidden relative">
-                           <img src={service.img} alt={service.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                           <div className="absolute bottom-6 left-6 text-white">
-                              <h3 className="text-xl font-bold">{service.title}</h3>
-                           </div>
+                  ].map((item, idx) => (
+                     <div key={idx} className="p-6 bg-white rounded-2xl border border-neutral-100 hover:shadow-lg transition-all duration-300">
+                        <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center mb-4`}>
+                           <item.icon size={24} />
                         </div>
-                        <div className="p-8">
-                           <p className="text-neutral-600 leading-relaxed mb-6">{service.desc}</p>
-                           <button
-                              onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
-                              className="flex items-center text-brand font-bold text-sm uppercase tracking-wider group-hover:translate-x-2 transition-transform cursor-pointer"
-                           >
-                              Contact Sales <ArrowRight size={16} className="ml-2" />
-                           </button>
-                        </div>
+                        <h3 className="font-bold text-neutral-900 mb-2">{item.title}</h3>
+                        <p className="text-neutral-500 text-sm leading-relaxed">{item.desc}</p>
                      </div>
                   ))}
+               </div>
+
+               {/* CTA */}
+               <div className="mt-12 text-center">
+                  <Button
+                     size="lg"
+                     onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                     Request Wholesale Quote
+                  </Button>
                </div>
             </div>
          </section>
