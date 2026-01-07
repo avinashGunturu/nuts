@@ -40,7 +40,7 @@ export const Home: React.FC = () => {
       {/* Features / Value Props */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 md:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {[
               { icon: MapPin, title: "Pan-India Delivery", text: "20,000+ pincodes" },
               { icon: ShieldCheck, title: "Quality First", text: "Grade A Certified" },
@@ -115,7 +115,7 @@ export const Home: React.FC = () => {
       {/* Best Sellers */}
       <section id="shop" className="py-24 bg-neutral-50/50">
         <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div className="flex flex-col md:flex-row justify-between md:items-end mb-12 gap-6">
             <div>
               <span className="text-brand font-semibold tracking-wider uppercase text-xs mb-2 block">Selected for You</span>
               <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 tracking-tight">Best Sellers</h2>

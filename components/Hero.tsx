@@ -13,7 +13,7 @@ export const Hero: React.FC = () => {
       <div className="container mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-10 lg:gap-16">
 
         {/* Left Content */}
-        <div className="flex-1 flex flex-col items-start z-10 animate-fade-in-up">
+        <div className="w-full flex-1 flex flex-col items-start z-10 animate-fade-in-up">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-brand-dark mb-5">
             <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
             <span className="text-xs font-bold uppercase tracking-[0.15em] font-sans">KC NUTS</span>
