@@ -4,6 +4,26 @@ import { Building2, Trophy, CheckCircle2, ArrowRight, Briefcase, Mail, Phone, Pa
 
 const WHOLESALE_FAQS = [
    {
+      question: "Do you supply pan-India?",
+      answer: "Yes, we dispatch across India."
+   },
+   {
+      question: "Do you provide samples?",
+      answer: "Yes, samples are available on request."
+   },
+   {
+      question: "Are your grades consistent?",
+      answer: "Yes. All kernels are factory graded and quality checked."
+   },
+   {
+      question: "Do you offer private labeling?",
+      answer: "Available for bulk orders."
+   },
+   {
+      question: "What payment methods do you accept?",
+      answer: "UPI, Net Banking, and Razorpay-secured payments."
+   },
+   {
       question: "What is the Minimum Order Quantity (MOQ) for wholesale?",
       answer: "For raw material bulk supply (sacks), our MOQ starts at 50kg. For packaged retail units, the MOQ is 5 master cartons per product variant."
    },
@@ -269,9 +289,12 @@ export const Corporate: React.FC = () => {
                         </div>
                         <div className="p-8">
                            <p className="text-neutral-600 leading-relaxed mb-6">{service.desc}</p>
-                           <div className="flex items-center text-brand font-bold text-sm uppercase tracking-wider group-hover:translate-x-2 transition-transform cursor-pointer">
+                           <button
+                              onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
+                              className="flex items-center text-brand font-bold text-sm uppercase tracking-wider group-hover:translate-x-2 transition-transform cursor-pointer"
+                           >
                               Contact Sales <ArrowRight size={16} className="ml-2" />
-                           </div>
+                           </button>
                         </div>
                      </div>
                   ))}
@@ -302,7 +325,7 @@ export const Corporate: React.FC = () => {
                               </div>
                               <div>
                                  <div className="text-sm text-neutral-400 uppercase tracking-wider font-bold mb-1">Wholesale Desk</div>
-                                 <div className="text-xl font-bold">+91 98765 43210</div>
+                                 <a href="tel:+919440829165" className="text-xl font-bold hover:underline">+91 94408 29165</a>
                               </div>
                            </div>
                            <div className="flex items-center gap-4">
@@ -311,7 +334,7 @@ export const Corporate: React.FC = () => {
                               </div>
                               <div>
                                  <div className="text-sm text-neutral-400 uppercase tracking-wider font-bold mb-1">B2B Sales</div>
-                                 <div className="text-xl font-bold">wholesale@kcnuts.in</div>
+                                 <a href="mailto:Mahindracashewproducts@gmail.com" className="text-xl font-bold hover:underline break-all">Mahindracashewproducts@gmail.com</a>
                               </div>
                            </div>
                         </div>
@@ -496,8 +519,8 @@ export const Corporate: React.FC = () => {
                      <div className="p-6 bg-white rounded-3xl border border-neutral-100 shadow-sm">
                         <p className="text-neutral-700 font-bold mb-2">Can't find an answer?</p>
                         <p className="text-sm text-neutral-500 mb-4">Contact our dedicated B2B sales desk directly.</p>
-                        <a href="mailto:wholesale@kcnuts.in" className="text-brand font-bold flex items-center gap-2 hover:underline">
-                           <Mail size={16} /> wholesale@kcnuts.in
+                        <a href="mailto:Mahindracashewproducts@gmail.com" className="text-brand font-bold flex items-center gap-2 hover:underline break-all">
+                           <Mail size={16} className="flex-shrink-0" /> Mahindracashewproducts@gmail.com
                         </a>
                      </div>
                   </div>
