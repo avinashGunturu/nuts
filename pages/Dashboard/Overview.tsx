@@ -18,6 +18,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { API_CONFIG } from '../../config';
+import { getTransactions, Transaction } from '../../services/transactionService';
 
 // Helper to get auth token from cookie or localStorage
 const getAuthToken = (): string | null => {
@@ -45,6 +46,8 @@ export const DashboardOverview: React.FC = () => {
    const { user } = useAuth();
    const [data, setData] = useState<DashboardStats | null>(null);
    const [loading, setLoading] = useState(true);
+   const [transactions, setTransactions] = useState<Transaction[]>([]);
+   const [transactionsLoading, setTransactionsLoading] = useState(true);
 
    useEffect(() => {
       const fetchStats = async () => {
@@ -67,7 +70,25 @@ export const DashboardOverview: React.FC = () => {
          }
       };
 
+      const fetchTransactions = async () => {
+         try {
+            const result = await getTransactions({
+               page: 1,
+               limit: 10,
+               status: 'all',
+               sortBy: 'createdAt',
+               sortOrder: 'desc'
+            });
+            setTransactions(result.transactions);
+         } catch (error) {
+            console.error('Error fetching transactions:', error);
+         } finally {
+            setTransactionsLoading(false);
+         }
+      };
+
       fetchStats();
+      fetchTransactions();
    }, []);
 
    if (loading) {
@@ -328,67 +349,75 @@ export const DashboardOverview: React.FC = () => {
             </div>
          </div>
 
-         {/* Recent Orders Section */}
+         {/* Recent Transactions Section */}
          <div className="bg-white rounded-[40px] border border-neutral-100 shadow-sm overflow-hidden">
             <div className="px-10 py-8 border-b border-neutral-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
                <div>
                   <h3 className="text-2xl font-bold text-neutral-900">Recent Transactions</h3>
                   <p className="text-neutral-400 text-sm mt-1">Live feed of orders processed today</p>
                </div>
-               <Link to="/dashboard/orders">
+               <Link to="/dashboard/transactions">
                   <Button variant="ghost" size="sm" className="text-brand font-bold uppercase tracking-widest">View History</Button>
                </Link>
             </div>
 
             <div className="overflow-x-auto min-w-full">
-               <table className="w-full text-left min-w-[800px]">
-                  <thead>
-                     <tr className="bg-neutral-50/50">
-                        <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
-                        <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
-                        <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
-                        <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Amount</th>
-                        <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
-                        <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Action</th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-50">
-                     {data.recentOrders.length > 0 ? data.recentOrders.map((order) => (
-                        <tr key={order._id} className="hover:bg-neutral-50/50 transition-colors">
-                           <td className="px-10 py-5 font-bold text-neutral-900 text-xs text-brand font-mono">#{order._id.slice(-6).toUpperCase()}</td>
-                           <td className="px-6 py-5">
-                              <div className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded-full bg-brand-50 text-brand flex items-center justify-center text-xs font-bold uppercase">
-                                    {order.user?.name?.[0] || 'U'}
+               {transactionsLoading ? (
+                  <div className="px-10 py-12 flex flex-col items-center justify-center text-neutral-400">
+                     <Loader className="animate-spin mb-3" size={24} />
+                     <p className="text-sm">Loading transactions...</p>
+                  </div>
+               ) : (
+                  <table className="w-full text-left min-w-[800px]">
+                     <thead>
+                        <tr className="bg-neutral-50/50">
+                           <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Order ID</th>
+                           <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
+                           <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
+                           <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Amount</th>
+                           <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
+                           <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Action</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-neutral-50">
+                        {transactions.length > 0 ? transactions.map((txn) => (
+                           <tr key={txn._id} className="hover:bg-neutral-50/50 transition-colors">
+                              <td className="px-10 py-5 font-bold text-neutral-900 text-xs text-brand font-mono">#{txn.orderId?.slice(-6).toUpperCase() || txn._id.slice(-6).toUpperCase()}</td>
+                              <td className="px-6 py-5">
+                                 <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-brand-50 text-brand flex items-center justify-center text-xs font-bold uppercase">
+                                       {txn.customer?.name?.[0] || 'G'}
+                                    </div>
+                                    <span className="text-sm font-bold text-neutral-700">{txn.customer?.name || 'Guest User'}</span>
                                  </div>
-                                 <span className="text-sm font-bold text-neutral-700">{order.user?.name || 'Unknown User'}</span>
-                              </div>
-                           </td>
-                           <td className="px-6 py-5 text-sm text-neutral-500 font-medium whitespace-nowrap">
-                              {new Date(order.createdAt).toLocaleDateString()}
-                           </td>
-                           <td className="px-6 py-5 text-sm font-bold text-neutral-900">₹{order.finalAmount}</td>
-                           <td className="px-6 py-5">
-                              <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${order.status === 'delivered' ? 'bg-success-bg text-success' :
-                                 order.status === 'processing' ? 'bg-brand-50 text-brand' :
-                                    'bg-orange-50 text-orange-600'
-                                 }`}>
-                                 {order.status}
-                              </span>
-                           </td>
-                           <td className="px-10 py-5 text-right">
-                              <Link to={`/dashboard/orders/${order._id}`}>
-                                 <button className="text-neutral-300 hover:text-brand transition-all transform hover:scale-110 p-2"><ExternalLink size={18} /></button>
-                              </Link>
-                           </td>
-                        </tr>
-                     )) : (
-                        <tr>
-                           <td colSpan={6} className="px-10 py-8 text-center text-neutral-400 text-sm">No recent orders found.</td>
-                        </tr>
-                     )}
-                  </tbody>
-               </table>
+                              </td>
+                              <td className="px-6 py-5 text-sm text-neutral-500 font-medium whitespace-nowrap">
+                                 {new Date(txn.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-5 text-sm font-bold text-neutral-900">₹{txn.amount}</td>
+                              <td className="px-6 py-5">
+                                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${txn.status === 'success' ? 'bg-success-bg text-success' :
+                                       txn.status === 'initiated' ? 'bg-orange-50 text-orange-600' :
+                                          txn.status === 'failed' ? 'bg-error-bg text-error' :
+                                             'bg-purple-50 text-purple-600'
+                                    }`}>
+                                    {txn.status === 'initiated' ? 'pending' : txn.status}
+                                 </span>
+                              </td>
+                              <td className="px-10 py-5 text-right">
+                                 <Link to={`/dashboard/transactions`}>
+                                    <button className="text-neutral-300 hover:text-brand transition-all transform hover:scale-110 p-2"><ExternalLink size={18} /></button>
+                                 </Link>
+                              </td>
+                           </tr>
+                        )) : (
+                           <tr>
+                              <td colSpan={6} className="px-10 py-8 text-center text-neutral-400 text-sm">No recent transactions found.</td>
+                           </tr>
+                        )}
+                     </tbody>
+                  </table>
+               )}
             </div>
          </div>
       </div>
