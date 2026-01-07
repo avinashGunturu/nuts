@@ -178,17 +178,23 @@ export const Contact: React.FC = () => {
 
             <div className="space-y-6">
               {[
-                { icon: Mail, title: "Email", content: "hello@kcnuts.in", sub: "For general inquiries" },
-                { icon: Phone, title: "Phone", content: "+91 98765 43210", sub: "Mon-Fri, 9am - 6pm IST" },
-                { icon: MapPin, title: "Office", content: "123 Cashew Lane, Ratnagiri", sub: "Maharashtra, India 415612" },
+                { icon: Mail, title: "Email", content: "Mahindracashewproducts@gmail.com", sub: "For general inquiries", href: "mailto:Mahindracashewproducts@gmail.com" },
+                { icon: Phone, title: "Phone", content: "+91 94408 29165", sub: "Mon-Sat, 9am - 6pm IST", href: "tel:+919440829165" },
+                { icon: MapPin, title: "Address", content: "Main Road, Garudabhadra Village & Post", sub: "Vajrapukotturu Mandal, Srikakulam, AP – 532222, India" },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-6 p-6 rounded-3xl bg-neutral-50 border border-neutral-100 hover:border-brand-light/30 transition-colors">
                   <div className="bg-white p-4 rounded-full shadow-sm text-brand">
                     <item.icon size={24} />
                   </div>
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h4 className="font-bold text-lg text-neutral-900">{item.title}</h4>
-                    <p className="text-brand font-medium text-lg">{item.content}</p>
+                    {item.href ? (
+                      <a href={item.href} className="text-brand font-medium text-lg break-all hover:underline">
+                        {item.content}
+                      </a>
+                    ) : (
+                      <p className="text-brand font-medium text-lg break-all">{item.content}</p>
+                    )}
                     <p className="text-sm text-neutral-400 mt-1">{item.sub}</p>
                   </div>
                 </div>
