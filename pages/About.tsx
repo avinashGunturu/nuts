@@ -7,7 +7,7 @@ export const About: React.FC = () => {
    return (
       <div className="min-h-screen bg-white">
          {/* Hero Section */}
-         <section className="relative pt-24 pb-12 md:pt-48 md:pb-32 overflow-hidden">
+         <section className="relative pt-36 pb-12 md:pt-48 md:pb-32 overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[600px] h-[600px] bg-brand/5 rounded-full blur-3xl -z-10"></div>
             <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/3 w-[400px] h-[400px] bg-warning/5 rounded-full blur-3xl -z-10"></div>
