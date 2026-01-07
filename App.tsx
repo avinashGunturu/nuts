@@ -16,6 +16,10 @@ import { AdminLogin } from './pages/AdminLogin';
 import { Signup } from './pages/Signup';
 import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsConditions } from './pages/TermsConditions';
+import { RefundPolicy } from './pages/RefundPolicy';
+import { ShippingPolicy } from './pages/ShippingPolicy';
 import { AccessDenied } from './pages/AccessDenied';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -54,6 +58,10 @@ const App: React.FC = () => {
                      <Route path="signup" element={<Signup />} />
                      <Route path="profile" element={<Profile />} />
                      <Route path="orders" element={<Orders />} />
+                     <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                     <Route path="terms-conditions" element={<TermsConditions />} />
+                     <Route path="refund-policy" element={<RefundPolicy />} />
+                     <Route path="shipping-policy" element={<ShippingPolicy />} />
                   </Route>
 
                   {/* Admin Portal Routes */}
