@@ -30,13 +30,15 @@ export const AdminCustomers: React.FC = () => {
    const [totalPages, setTotalPages] = useState(1);
    const [totalCustomers, setTotalCustomers] = useState(0);
 
-   // Helper to get token from localStorage or Cookies
+   // Helper to get token from Cookies (priority) or localStorage
    const getToken = () => {
-      const localToken = localStorage.getItem('token');
-      if (localToken && localToken !== 'null' && localToken !== 'undefined') return localToken;
-
+      // Check cookies first (same as transactionService)
       const match = document.cookie.match(new RegExp('(^| )Authorization=([^;]+)'));
       if (match) return match[2];
+
+      // Fallback to localStorage
+      const localToken = localStorage.getItem('token');
+      if (localToken && localToken !== 'null' && localToken !== 'undefined') return localToken;
 
       const tokenMatch = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
       if (tokenMatch) return tokenMatch[2];
