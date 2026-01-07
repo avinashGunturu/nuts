@@ -199,7 +199,7 @@ export const Corporate: React.FC = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                     <Button variant="white" size="lg" onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}>
+                     <Button variant="white" size="md" className="w-full sm:w-auto md:px-8 md:py-4 md:text-lg" onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}>
                         Request Wholesale Quote
                      </Button>
                      <div className="flex items-center gap-4 px-6 py-3 text-neutral-400 text-sm font-medium">
@@ -317,10 +317,10 @@ export const Corporate: React.FC = () => {
                   ))}
                </div>
 
-               {/* CTA */}
                <div className="mt-12 text-center">
                   <Button
-                     size="lg"
+                     size="md"
+                     className="w-full sm:w-auto md:px-8 md:py-4 md:text-lg"
                      onClick={() => document.getElementById('inquiry-form')?.scrollIntoView({ behavior: 'smooth' })}
                   >
                      Request Wholesale Quote
@@ -585,7 +585,7 @@ export const Corporate: React.FC = () => {
                               ></textarea>
                            </div>
 
-                           <Button type="submit" size="lg" className="w-full py-5 text-lg" isLoading={isSubmitting}>
+                           <Button type="submit" size="md" className="w-full md:py-4 md:text-lg" isLoading={isSubmitting}>
                               Submit Inquiry
                            </Button>
                            <p className="text-xs text-neutral-400 text-center mt-4">
@@ -618,7 +618,7 @@ export const Corporate: React.FC = () => {
                   </div>
 
                   <div className="lg:w-2/3">
-                     <div className="space-y-4">
+                     <div className="space-y-3">
                         {WHOLESALE_FAQS.map((faq, index) => (
                            <div
                               key={index}
@@ -626,19 +626,19 @@ export const Corporate: React.FC = () => {
                            >
                               <button
                                  onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
-                                 className="flex items-center justify-between w-full p-6 md:p-8 text-left"
+                                 className="flex items-center justify-between w-full p-4 md:p-6 text-left"
                               >
-                                 <span className={`text-xl font-bold transition-colors ${openFaqIndex === index ? 'text-brand' : 'text-neutral-900'}`}>
+                                 <span className={`text-base md:text-lg font-bold transition-colors ${openFaqIndex === index ? 'text-brand' : 'text-neutral-900'}`}>
                                     {faq.question}
                                  </span>
-                                 <div className={`flex-shrink-0 ml-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openFaqIndex === index ? 'bg-brand text-white rotate-180' : 'bg-neutral-100 text-neutral-500'}`}>
-                                    {openFaqIndex === index ? <Minus size={20} /> : <Plus size={20} />}
+                                 <div className={`flex-shrink-0 ml-3 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openFaqIndex === index ? 'bg-brand text-white rotate-180' : 'bg-neutral-100 text-neutral-500'}`}>
+                                    {openFaqIndex === index ? <Minus size={16} /> : <Plus size={16} />}
                                  </div>
                               </button>
                               <div
                                  className={`overflow-hidden transition-all duration-500 ease-in-out ${openFaqIndex === index ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}
                               >
-                                 <div className="px-6 md:px-8 pb-8 text-neutral-600 leading-relaxed text-lg">
+                                 <div className="px-4 md:px-6 pb-4 md:pb-6 text-neutral-600 leading-relaxed text-sm md:text-base">
                                     {faq.answer}
                                  </div>
                               </div>
