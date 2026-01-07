@@ -31,12 +31,12 @@ export const Hero: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Link to="/shop">
-              <Button size="lg" className="shadow-xl shadow-brand/20 w-full sm:w-auto rounded-xl min-w-[160px] group">
+              <Button size="md" className="shadow-xl shadow-brand/20 w-full sm:w-auto rounded-xl md:px-8 md:py-4 md:text-lg group">
                 Shop Now <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
               </Button>
             </Link>
             <Link to="/corporate">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-xl min-w-[160px]">
+              <Button variant="outline" size="md" className="w-full sm:w-auto rounded-xl md:px-8 md:py-4 md:text-lg">
                 Bulk Orders
               </Button>
             </Link>

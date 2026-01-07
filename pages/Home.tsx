@@ -342,11 +342,10 @@ export const Home: React.FC = () => {
           </div>
 
           {/* CTA */}
-          {/* CTA */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link to="/corporate">
-              <Button variant="primary" size="lg" className="rounded-xl min-w-[180px]">
-                Request Bulk Quote <ArrowRight className="ml-2" size={18} />
+              <Button variant="primary" size="md" className="rounded-xl w-full sm:w-auto md:px-8 md:py-4 md:text-lg">
+                Request Bulk Quote <ArrowRight className="ml-2" size={16} />
               </Button>
             </Link>
             <Link to="/contact" className="text-neutral-400 hover:text-white transition-colors text-sm font-medium flex items-center gap-2">
@@ -414,14 +413,14 @@ export const Home: React.FC = () => {
               ))}
             </div>
 
-            <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row gap-4">
+            <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row gap-3">
               <Link to="/about">
-                <Button variant="white" size="lg" className="group rounded-xl min-w-[180px]">
-                  Our Journey <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                <Button variant="white" size="md" className="group rounded-xl w-full sm:w-auto md:px-8 md:py-4 md:text-lg">
+                  Our Journey <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={16} />
                 </Button>
               </Link>
               <Link to="/shop">
-                <Button variant="outline" size="lg" className="text-white border-white/30 hover:bg-white/10 hover:text-white hover:border-white rounded-xl min-w-[180px]">
+                <Button variant="outline" size="md" className="text-white border-white/30 hover:bg-white/10 hover:text-white hover:border-white rounded-xl w-full sm:w-auto md:px-8 md:py-4 md:text-lg">
                   View Harvest
                 </Button>
               </Link>

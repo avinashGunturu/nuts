@@ -140,7 +140,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, 
     <div className={`group flex flex-col h-full bg-white rounded-3xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-overlay ${isHighlighted ? 'border-brand shadow-glow' : 'border-neutral-100 hover:border-neutral-200'}`}>
 
       {/* Image Container & Slider */}
-      <div className="relative aspect-[4/5] sm:aspect-[4/3] overflow-hidden rounded-t-3xl bg-neutral-50 group/image">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-neutral-50 group/image">
         {/* Badges */}
         {product.isNew && (
           <span className="absolute top-4 left-4 z-20 bg-neutral-900 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
