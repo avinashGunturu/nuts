@@ -397,10 +397,10 @@ export const Corporate: React.FC = () => {
          {/* Inquiry Form Section */}
          <section id="inquiry-form" className="py-24 relative overflow-hidden bg-white">
             <div className="container mx-auto px-6 md:px-12">
-               <div className="bg-white rounded-[48px] shadow-2xl shadow-neutral-200 overflow-hidden flex flex-col lg:flex-row border border-neutral-100">
+               <div className="bg-white rounded-3xl md:rounded-[48px] shadow-2xl shadow-neutral-200 overflow-hidden flex flex-col lg:flex-row border border-neutral-100">
 
                   {/* Left: Contact Details */}
-                  <div className="lg:w-2/5 bg-neutral-900 text-white p-12 md:p-16 flex flex-col justify-between relative overflow-hidden">
+                  <div className="lg:w-2/5 bg-neutral-900 text-white p-6 md:p-12 lg:p-16 flex flex-col justify-between relative overflow-hidden">
                      <div className="absolute inset-0 bg-brand/10 opacity-50"></div>
                      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-brand rounded-full blur-[80px] opacity-40"></div>
 
@@ -444,7 +444,7 @@ export const Corporate: React.FC = () => {
                   </div>
 
                   {/* Right: Form */}
-                  <div className="lg:w-3/5 p-12 md:p-16 bg-white">
+                  <div className="lg:w-3/5 p-6 md:p-12 lg:p-16 bg-white">
                      {isSent ? (
                         <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in">
                            <div className="w-24 h-24 bg-success-bg text-success rounded-full flex items-center justify-center mb-6">

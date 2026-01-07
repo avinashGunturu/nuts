@@ -215,7 +215,7 @@ export const Contact: React.FC = () => {
 
           {/* Contact Form */}
           <div className="lg:w-2/3">
-            <div className="bg-white p-10 md:p-14 rounded-[40px] shadow-2xl shadow-neutral-100 border border-neutral-100 relative overflow-hidden">
+            <div className="bg-white p-5 md:p-10 lg:p-14 rounded-3xl md:rounded-[40px] shadow-2xl shadow-neutral-100 border border-neutral-100 relative overflow-hidden">
               {/* Decorative background element for the form card */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-brand/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2"></div>
 
@@ -235,7 +235,7 @@ export const Contact: React.FC = () => {
                     <p className="text-neutral-500 text-base mt-2">We typically reply within a few hours.</p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
                     <div className="space-y-3">
                       <label htmlFor="name" className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Full Name <span className="text-error">*</span></label>
                       <div className="relative group">
@@ -275,7 +275,7 @@ export const Contact: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
                     <div className="space-y-3">
                       <label htmlFor="phone" className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Phone <span className="text-error">*</span></label>
                       <div className="relative group">
@@ -358,8 +358,8 @@ export const Contact: React.FC = () => {
                   <div className="pt-4">
                     <Button
                       type="submit"
-                      size="lg"
-                      className="w-full shadow-lg shadow-brand/20 hover:shadow-brand/40 py-5 text-lg"
+                      size="md"
+                      className="w-full shadow-lg shadow-brand/20 hover:shadow-brand/40 md:py-5 md:text-lg"
                       isLoading={isSubmitting}
                     >
                       Send Message
