@@ -329,6 +329,71 @@ export const Corporate: React.FC = () => {
             </div>
          </section>
 
+         {/* Available Grades & Packaging */}
+         <section className="py-20 bg-white">
+            <div className="container mx-auto px-6 md:px-12">
+               <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">Available Grades & Packaging</h2>
+                  <p className="text-neutral-500 text-lg">Premium quality kernels in various grades to suit your business needs.</p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Whole Cashews */}
+                  <div className="bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                     <h3 className="font-bold text-lg text-neutral-900 mb-4 pb-3 border-b border-neutral-200">Whole Cashews</h3>
+                     <ul className="space-y-2 text-neutral-600">
+                        <li className="flex justify-between"><span>W180</span><span className="text-brand font-medium">Premium Jumbo</span></li>
+                        <li className="flex justify-between"><span>W210</span><span className="text-brand font-medium">Large Size</span></li>
+                        <li className="flex justify-between"><span>W240</span><span className="text-brand font-medium">Export Grade</span></li>
+                        <li className="flex justify-between"><span>W320</span><span className="text-brand font-medium">Most Popular</span></li>
+                        <li className="flex justify-between"><span>W400</span><span className="text-brand font-medium">Standard Grade</span></li>
+                     </ul>
+                  </div>
+
+                  {/* Broken Cashews */}
+                  <div className="bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                     <h3 className="font-bold text-lg text-neutral-900 mb-4 pb-3 border-b border-neutral-200">Broken Cashews</h3>
+                     <ul className="space-y-2 text-neutral-600">
+                        <li className="flex justify-between"><span>Splits</span><span className="text-brand font-medium">Half Kernels</span></li>
+                        <li className="flex justify-between"><span>Pieces</span><span className="text-brand font-medium">Irregular Bits</span></li>
+                     </ul>
+                     <p className="text-sm text-neutral-500 mt-4">Ideal for sweets, bakery & confectionery applications.</p>
+                  </div>
+
+                  {/* Packaging Options */}
+                  <div className="bg-brand-50 p-6 rounded-2xl border border-brand-100">
+                     <h3 className="font-bold text-lg text-neutral-900 mb-4 pb-3 border-b border-brand-200">Packaging Options</h3>
+                     <div className="space-y-3">
+                        <div>
+                           <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Retail Packs</p>
+                           <p className="text-neutral-700">100g, 200g, 250g, 500g, 1kg</p>
+                        </div>
+                        <div>
+                           <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Bulk Packs</p>
+                           <p className="text-neutral-700">3kg, 10kg, 20kg</p>
+                        </div>
+                     </div>
+                     <p className="text-sm text-brand-dark font-medium mt-4">Custom packing available for bulk orders</p>
+                  </div>
+
+                  {/* Storage Info */}
+                  <div className="bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                     <h3 className="font-bold text-lg text-neutral-900 mb-4 pb-3 border-b border-neutral-200">Storage & Shelf Life</h3>
+                     <div className="space-y-3">
+                        <div>
+                           <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Shelf Life</p>
+                           <p className="text-neutral-700 font-medium">Up to 12 months</p>
+                        </div>
+                        <div>
+                           <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Storage</p>
+                           <p className="text-neutral-600 text-sm">Store in a cool, dry place away from direct sunlight</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
          {/* Inquiry Form Section */}
          <section id="inquiry-form" className="py-24 relative overflow-hidden bg-white">
             <div className="container mx-auto px-6 md:px-12">
