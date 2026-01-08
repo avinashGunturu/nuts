@@ -30,6 +30,8 @@ export const Checkout: React.FC = () => {
 
    const [errors, setErrors] = useState<Record<string, string>>({});
    const [showSuccessModal, setShowSuccessModal] = useState(false);
+   const [previousOrderDetails, setPreviousOrderDetails] = useState<{ amount: number } | null>(null);
+   const [showFailureModal, setShowFailureModal] = useState(false);
    const [isPaying, setIsPaying] = useState(false);
    const [confirmedOrderId, setConfirmedOrderId] = useState<string>('');
 
@@ -279,14 +281,25 @@ export const Checkout: React.FC = () => {
             modal: {
                ondismiss: function () {
                   setIsPaying(false);
+                  setPaymentError('Payment cancelled. You can retry via the "Pay Now" button.');
+                  setPreviousOrderDetails({ amount: amount });
+                  setShowFailureModal(true);
                }
             }
          };
 
          const razorpay = new window.Razorpay(options);
          razorpay.on('payment.failed', function (response: any) {
-            setPaymentError(response.error.description || 'Payment failed. Please try again.');
+            console.error('Payment Failed:', response.error);
+
+            // Extract relevant error info
+            const errorMessage = response.error.description || 'Payment failed. Please try again.';
+
+            // Update state
+            setPaymentError(errorMessage);
+            setPreviousOrderDetails({ amount: amount });
             setIsPaying(false);
+            setShowFailureModal(true);
          });
          razorpay.open();
 
@@ -353,6 +366,20 @@ export const Checkout: React.FC = () => {
    const handleViewOrders = () => {
       setShowSuccessModal(false);
       navigate('/orders');
+   };
+
+   const handleCloseFailureModal = () => {
+      setShowFailureModal(false);
+   };
+
+   const handleRetryPayment = () => {
+      setShowFailureModal(false);
+      // Logic to retry could go here, for now it just closes so they can click the button again
+      // We could also potentially auto-scroll to the payment button
+      const paymentButton = document.querySelector('button[type="submit"]');
+      if (paymentButton) {
+         paymentButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
    };
 
    const getInputClass = (fieldName: string, hasIcon: boolean = false) => {
@@ -639,7 +666,7 @@ export const Checkout: React.FC = () => {
                      )}
 
                      <div className="space-y-4">
-                        {/* ===== RAZORPAY PAYMENT BUTTON (Uncomment when Razorpay is activated) =====
+                        {/* ===== RAZORPAY PAYMENT BUTTON (Uncomment when Razorpay is activated) ===== */}
                         <Button
                            type="submit"
                            form="checkout-form"
@@ -657,10 +684,10 @@ export const Checkout: React.FC = () => {
                               <Lock size={10} /> Secure Checkout
                            </span>
                         </div>
-                        ===== END RAZORPAY ===== */}
+                        {/* ===== END RAZORPAY ===== */}
 
                         {/* ===== CREATE ORDER BUTTON (Comment out when Razorpay is activated) ===== */}
-                        <Button
+                        {/* <Button
                            type="button"
                            onClick={handleCreateOrder}
                            size="md"
@@ -669,13 +696,13 @@ export const Checkout: React.FC = () => {
                         >
                            {!isPaying && <ShoppingBag className="mr-2 flex-shrink-0" size={18} />}
                            <span>{isPaying ? 'Creating Order...' : `Create Order • ₹${finalTotal.toLocaleString('en-IN')}`}</span>
-                        </Button>
+                        </Button> */}
 
-                        <div className="flex items-center justify-center gap-3">
+                        {/* <div className="flex items-center justify-center gap-3">
                            <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1">
                               <ShieldCheck size={10} /> Secure Order
                            </span>
-                        </div>
+                        </div> */}
                         {/* ===== END CREATE ORDER ===== */}
                      </div>
 
@@ -712,6 +739,38 @@ export const Checkout: React.FC = () => {
                      </Button>
                      <Button onClick={handleContinueShopping} variant="outline" className="w-full py-4 text-lg">
                         Continue Shopping
+                     </Button>
+                  </div>
+               </div>
+            </div>
+         )}
+         {showFailureModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+               <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm animate-fade-in" onClick={handleCloseFailureModal}></div>
+               <div className="bg-white rounded-[32px] p-6 md:p-8 max-w-sm w-full relative z-10 text-center shadow-2xl animate-fade-in-up border border-error/10">
+                  <div className="w-16 h-16 bg-error-bg rounded-full flex items-center justify-center mx-auto mb-6 text-error shadow-lg shadow-error/20">
+                     <AlertCircle size={32} className="animate-pulse" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-neutral-900 mb-3 tracking-tight">Transaction Failed</h3>
+                  <div className="w-12 h-1 bg-neutral-100 mx-auto mb-5 rounded-full"></div>
+
+                  <p className="text-neutral-600 mb-6 leading-relaxed text-base">
+                     {paymentError || 'Your payment could not be processed. Please try again.'}
+                  </p>
+
+                  {previousOrderDetails && (
+                     <div className="mb-6 p-4 bg-neutral-50 rounded-xl border border-neutral-100 inline-block w-full">
+                        <div className="text-neutral-500 text-xs mb-1 uppercase tracking-wider font-bold">Amount Pending</div>
+                        <div className="text-2xl font-bold text-neutral-900">₹{Math.round(previousOrderDetails.amount).toLocaleString('en-IN')}</div>
+                     </div>
+                  )}
+
+                  <div className="space-y-3">
+                     {/* <Button onClick={handleRetryPayment} className="w-full py-3 text-base shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+                        Retry Payment
+                     </Button> */}
+                     <Button onClick={handleCloseFailureModal} variant="outline" className="w-full py-3 text-base border-neutral-200 hover:bg-neutral-50">
+                        Cancel
                      </Button>
                   </div>
                </div>
