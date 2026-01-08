@@ -296,6 +296,55 @@ export const Checkout: React.FC = () => {
       }
    };
 
+   // ===== CREATE ORDER (Without Razorpay Payment) =====
+   // Use this handler when Razorpay is not available
+   const handleCreateOrder = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!validateForm()) {
+         const firstErrorField = document.querySelector('.border-error');
+         if (firstErrorField) {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         }
+         return;
+      }
+
+      setIsPaying(true);
+      setPaymentError('');
+
+      try {
+         // 1. Prepare shipping address
+         const shippingAddress = {
+            street: formData.address,
+            city: formData.city,
+            state: formData.state,
+            zip: formData.pincode,
+            country: 'India'
+         };
+
+         // 2. Get cart items in API format
+         const items = getCartItemsForAPI();
+
+         // 3. Create order (without Razorpay)
+         const response = await orderService.createOrder(
+            items,
+            shippingAddress,
+            appliedCoupon?.code
+         );
+
+         // 4. Success!
+         setConfirmedOrderId(response.data.orderId);
+         setShowSuccessModal(true);
+         clearCart();
+         setIsPaying(false);
+
+      } catch (error: any) {
+         setPaymentError(error.message || 'Order creation failed. Please try again.');
+         setIsPaying(false);
+      }
+   };
+   // ===== END CREATE ORDER =====
+
    const handleContinueShopping = () => {
       setShowSuccessModal(false);
       navigate('/shop');
@@ -414,8 +463,8 @@ export const Checkout: React.FC = () => {
                                           type="button"
                                           onClick={() => handleSelectAddress(addr)}
                                           className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${isSelected
-                                                ? 'border-brand bg-brand-50 text-brand'
-                                                : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand/50 hover:bg-neutral-50'
+                                             ? 'border-brand bg-brand-50 text-brand'
+                                             : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand/50 hover:bg-neutral-50'
                                              }`}
                                        >
                                           {isSelected ? (
@@ -590,6 +639,7 @@ export const Checkout: React.FC = () => {
                      )}
 
                      <div className="space-y-4">
+                        {/* ===== RAZORPAY PAYMENT BUTTON (Uncomment when Razorpay is activated) =====
                         <Button
                            type="submit"
                            form="checkout-form"
@@ -607,11 +657,32 @@ export const Checkout: React.FC = () => {
                               <Lock size={10} /> Secure Checkout
                            </span>
                         </div>
+                        ===== END RAZORPAY ===== */}
+
+                        {/* ===== CREATE ORDER BUTTON (Comment out when Razorpay is activated) ===== */}
+                        <Button
+                           type="button"
+                           onClick={handleCreateOrder}
+                           size="md"
+                           className="w-full bg-brand hover:bg-brand-dark shadow-lg text-white"
+                           isLoading={isPaying}
+                        >
+                           {!isPaying && <ShoppingBag className="mr-2 flex-shrink-0" size={18} />}
+                           <span>{isPaying ? 'Creating Order...' : `Create Order • ₹${finalTotal.toLocaleString('en-IN')}`}</span>
+                        </Button>
+
+                        <div className="flex items-center justify-center gap-3">
+                           <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest flex items-center gap-1">
+                              <ShieldCheck size={10} /> Secure Order
+                           </span>
+                        </div>
+                        {/* ===== END CREATE ORDER ===== */}
                      </div>
 
                      <div className="mt-8 flex items-start gap-3 text-sm text-neutral-400 bg-neutral-50 p-4 rounded-xl">
                         <ShieldCheck size={20} className="text-neutral-500 mt-0.5 flex-shrink-0" />
-                        <p>Your payment is secured by Razorpay. We support UPI, Cards, Net Banking, and Wallets.</p>
+                        <p>Your order will be created and our team will contact you for payment confirmation.</p>
+                        {/* <p>Your payment is secured by Razorpay. We support UPI, Cards, Net Banking, and Wallets.</p> */}
                      </div>
                   </div>
                </div>
@@ -625,10 +696,10 @@ export const Checkout: React.FC = () => {
                   <div className="w-24 h-24 bg-success-bg rounded-full flex items-center justify-center mx-auto mb-8 text-success shadow-lg shadow-success/20">
                      <CheckCircle2 size={48} className="animate-bounce" />
                   </div>
-                  <h3 className="text-3xl font-bold text-neutral-900 mb-4 tracking-tight">Payment Successful!</h3>
+                  <h3 className="text-3xl font-bold text-neutral-900 mb-4 tracking-tight">Order Created!</h3>
                   <div className="w-16 h-1 bg-neutral-100 mx-auto mb-6 rounded-full"></div>
                   <p className="text-neutral-600 mb-4 leading-relaxed text-lg">
-                     Thank you for your order! Your payment via Razorpay was confirmed.
+                     Thank you for your order! Our team will contact you shortly to confirm payment.
                   </p>
                   {confirmedOrderId && (
                      <p className="text-brand font-bold mb-8 text-lg">

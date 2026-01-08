@@ -207,6 +207,47 @@ export const orderService = {
     },
 
     /**
+     * Create order without payment (when Razorpay is not available)
+     * Use this for COD or manual payment processing
+     */
+    createOrder: async (
+        items: CartValidationItem[],
+        shippingAddress: ShippingAddress,
+        couponCode?: string
+    ): Promise<{ success: boolean; message: string; data: { orderId: string; mongoOrderId: string; finalAmount: number } }> => {
+        try {
+            const token = getAuthToken();
+            if (!token) {
+                throw new Error('Please login to proceed with checkout');
+            }
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ORDERS_CREATE}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        items,
+                        shippingAddress,
+                        ...(couponCode ? { couponCode } : {})
+                    })
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Order creation failed');
+            }
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
      * Get user's order history
      */
     getMyOrders: async (page = 1, limit = 10): Promise<{

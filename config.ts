@@ -18,6 +18,7 @@ export const API_CONFIG = {
         ORDERS_CHECKOUT_INITIATE: '/orders/checkout/initiate',
         ORDERS_CHECKOUT_VERIFY: '/orders/checkout/verify',
         ORDERS_MY_ORDERS: '/orders/my-orders',
+        ORDERS_CREATE: '/orders/create',
         ORDERS_LIST: '/orders/list',
         ORDERS: '/orders',
         // Transactions
