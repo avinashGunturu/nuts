@@ -66,16 +66,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setAddresses([]);
 
-    // Clear all localStorage items
+    // Clear all localStorage items related to auth
     localStorage.removeItem('kcnuts_user');
     localStorage.removeItem('kcnuts_addresses');
     localStorage.removeItem('kcnuts_cart');
+    localStorage.removeItem('token'); // Important: also clear the 'token' key
 
-    // Clear sessionStorage
+    // Clear sessionStorage completely
     sessionStorage.clear();
 
-    // Clear auth cookie
-    document.cookie = 'Authorization=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    // Clear all auth cookies with various combinations
+    const cookiesToClear = ['Authorization', 'token', 'auth'];
+    const paths = ['/', ''];
+
+    cookiesToClear.forEach(cookieName => {
+      paths.forEach(path => {
+        // Clear without domain
+        document.cookie = `${cookieName}=; Path=${path}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+        // Clear with SameSite
+        document.cookie = `${cookieName}=; Path=${path}; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax;`;
+        document.cookie = `${cookieName}=; Path=${path}; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Strict;`;
+        document.cookie = `${cookieName}=; Path=${path}; Expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=None; Secure;`;
+      });
+    });
   };
 
   const updateProfile = (userData: User) => {
