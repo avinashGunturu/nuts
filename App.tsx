@@ -21,6 +21,7 @@ import { TermsConditions } from './pages/TermsConditions';
 import { RefundPolicy } from './pages/RefundPolicy';
 import { ShippingPolicy } from './pages/ShippingPolicy';
 import { AccessDenied } from './pages/AccessDenied';
+import { NotFound } from './pages/NotFound';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Dashboard Components
@@ -91,10 +92,13 @@ const App: React.FC = () => {
                         <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
                      </Route>
                   </Route>
+
+                  {/* 404 Catch-all - MUST be last */}
+                  <Route path="*" element={<NotFound />} />
                </Routes>
             </BrowserRouter>
          </CartProvider>
-      </AuthProvider>
+      </AuthProvider >
    );
 };
 
