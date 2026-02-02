@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Briefcase,
   Ticket,
+  Megaphone,
   X
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { icon: Briefcase, label: 'Wholesale', path: '/dashboard/wholesale-requests' },
   { icon: MessageSquare, label: 'Messages', path: '/dashboard/contact-requests' },
   { icon: Ticket, label: 'Coupons', path: '/dashboard/coupons' },
+  { icon: Megaphone, label: 'Banner', path: '/dashboard/banner' },
 ];
 
 interface SidebarProps {
@@ -139,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, isMobi
   return (
     <aside className="w-72 bg-white border-r border-neutral-100 h-screen flex flex-col sticky top-0 hidden lg:flex">
       {/* Sidebar Header */}
-      <div className="p-8 pb-10">
+      <div className="p-6 pb-6">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl bg-brand text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-brand/20 group-hover:rotate-6 transition-transform">
             KC
@@ -148,8 +150,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, isMobi
         </Link>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 px-4 space-y-1">
+      {/* Main Navigation - Scrollable */}
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto min-h-0">
         <p className="px-4 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname.startsWith(item.path) && (item.path !== '/dashboard' || location.pathname === '/dashboard');
@@ -173,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, isMobi
       </nav>
 
       {/* Account Actions Section */}
-      <div className="px-4 py-8 space-y-1 border-t border-neutral-50">
+      <div className="px-4 py-4 space-y-1 border-t border-neutral-50">
         <p className="px-4 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] mb-4">Session</p>
         <button
           onClick={handleLogout}
@@ -185,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, isMobi
       </div>
 
       {/* User Mini Profile */}
-      <div className="p-6 mt-auto">
+      <div className="p-4 mt-auto">
         <div className="bg-neutral-50 rounded-3xl p-4 flex items-center gap-3 border border-neutral-100">
           <div className="w-10 h-10 rounded-full bg-brand text-white flex items-center justify-center font-bold shadow-sm">
             {user?.name?.charAt(0) || 'A'}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Hero } from '../components/Hero';
+import { MarqueeBanner } from '../components/MarqueeBanner';
 import { ProductCard } from '../components/ProductCard';
 import { Testimonials } from '../components/Testimonials';
 import { FAQ } from '../components/FAQ';

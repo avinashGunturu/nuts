@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { PRODUCTS } from '../constants';
+import { MarqueeBanner } from './MarqueeBanner';
 
 interface HeaderProps {
   cartCount: number;
@@ -50,8 +51,8 @@ export const Header: React.FC<HeaderProps> = ({ cartCount }) => {
 
   // Header styles based on state
   const headerBgClass = isScrolled || !isHome || isMobileMenuOpen
-    ? 'bg-white/95 backdrop-blur-xl border-neutral-100 shadow-sm py-4'
-    : 'bg-transparent border-transparent py-7';
+    ? 'bg-white/95 backdrop-blur-xl border-neutral-100 shadow-sm'
+    : 'bg-transparent border-transparent';
 
   const textColorClass = 'text-neutral-900';
   const navHoverClass = 'hover:text-brand';
@@ -69,9 +70,10 @@ export const Header: React.FC<HeaderProps> = ({ cartCount }) => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${headerBgClass}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b flex flex-col ${headerBgClass}`}
       >
-        <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+        <MarqueeBanner />
+        <div className={`container mx-auto px-6 md:px-12 flex items-center justify-between w-full transition-all duration-500 ${isScrolled || !isHome || isMobileMenuOpen ? 'py-4' : 'py-7'}`}>
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 z-50 group">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold transition-all duration-300 bg-brand text-white group-hover:bg-brand-dark group-hover:rotate-6 text-xl shadow-lg shadow-brand/20">
