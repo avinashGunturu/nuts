@@ -14,7 +14,8 @@ import {
   Briefcase,
   Ticket,
   Megaphone,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { icon: MessageSquare, label: 'Messages', path: '/dashboard/contact-requests' },
   { icon: Ticket, label: 'Coupons', path: '/dashboard/coupons' },
   { icon: Megaphone, label: 'Banner', path: '/dashboard/banner' },
+  { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
 ];
 
 interface SidebarProps {

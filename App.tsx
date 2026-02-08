@@ -39,6 +39,7 @@ import { AdminWholesaleRequests } from './pages/Dashboard/AdminWholesaleRequests
 import { AdminWholesaleDetails } from './pages/Dashboard/AdminWholesaleDetails';
 import { AdminCoupons } from './pages/Dashboard/AdminCoupons';
 import { AdminBannerSettings } from './pages/Dashboard/AdminBannerSettings';
+import { Settings } from './pages/Dashboard/Settings';
 
 const App: React.FC = () => {
    return (
@@ -89,7 +90,7 @@ const App: React.FC = () => {
 
                         {/* Other Dashboard Sub-routes */}
                         <Route path="analytics" element={<div className="p-10 text-2xl font-bold">Advanced Analytics (Coming Soon)</div>} />
-                        <Route path="settings" element={<div className="p-10 text-2xl font-bold">Portal Settings (Coming Soon)</div>} />
+                        <Route path="settings" element={<Settings />} />
                      </Route>
                   </Route>
 
