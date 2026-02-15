@@ -140,7 +140,8 @@ export const orderService = {
     initiateCheckout: async (
         items: CartValidationItem[],
         shippingAddress: ShippingAddress,
-        couponCode?: string
+        couponCode?: string,
+        deliveryMethod?: 'shipping' | 'pickup'
     ): Promise<CheckoutInitiateResponse> => {
         try {
             const token = getAuthToken();
@@ -159,7 +160,8 @@ export const orderService = {
                     body: JSON.stringify({
                         items,
                         shippingAddress,
-                        ...(couponCode ? { couponCode } : {})
+                        ...(couponCode ? { couponCode } : {}),
+                        deliveryMethod
                     })
                 }
             );
@@ -213,7 +215,8 @@ export const orderService = {
     createOrder: async (
         items: CartValidationItem[],
         shippingAddress: ShippingAddress,
-        couponCode?: string
+        couponCode?: string,
+        deliveryMethod?: 'shipping' | 'pickup'
     ): Promise<{ success: boolean; message: string; data: { orderId: string; mongoOrderId: string; finalAmount: number } }> => {
         try {
             const token = getAuthToken();
@@ -232,7 +235,8 @@ export const orderService = {
                     body: JSON.stringify({
                         items,
                         shippingAddress,
-                        ...(couponCode ? { couponCode } : {})
+                        ...(couponCode ? { couponCode } : {}),
+                        deliveryMethod
                     })
                 }
             );
@@ -297,6 +301,7 @@ export const orderService = {
         limit?: number;
         status?: string;
         orderId?: string;
+        deliveryMethod?: string;
         startDate?: string;
         endDate?: string;
     } = {}): Promise<{

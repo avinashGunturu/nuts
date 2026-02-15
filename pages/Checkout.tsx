@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, MapPin, Phone, User, Home, ShieldCheck, ShoppingBag, AlertCircle, CheckCircle2, Truck, Lock, Tag, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, MapPin, Phone, User, Home, ShieldCheck, ShoppingBag, AlertCircle, CheckCircle2, Truck, Lock, Tag, X, Loader2, Store } from 'lucide-react';
 import { orderService, CartValidationItem } from '../services/orderService';
 
 // Declare Razorpay on window object
@@ -51,6 +51,9 @@ export const Checkout: React.FC = () => {
 
    // Selected saved address
    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+
+   // Delivery Method
+   const [deliveryMethod, setDeliveryMethod] = useState<'shipping' | 'pickup'>('shipping');
 
    // Prefill contact details from user data on mount
    useEffect(() => {
@@ -129,14 +132,17 @@ export const Checkout: React.FC = () => {
          newErrors.phone = 'Please enter a valid 10-digit mobile number';
       }
 
-      if (!formData.address.trim()) newErrors.address = 'Address is required';
-      if (!formData.city.trim()) newErrors.city = 'City is required';
-      if (!formData.state.trim()) newErrors.state = 'State is required';
+      // Only validate address if shipping is selected
+      if (deliveryMethod === 'shipping') {
+         if (!formData.address.trim()) newErrors.address = 'Address is required';
+         if (!formData.city.trim()) newErrors.city = 'City is required';
+         if (!formData.state.trim()) newErrors.state = 'State is required';
 
-      if (!formData.pincode.trim()) {
-         newErrors.pincode = 'Pincode is required';
-      } else if (!pincodeRegex.test(formData.pincode)) {
-         newErrors.pincode = 'Please enter a valid 6-digit pincode';
+         if (!formData.pincode.trim()) {
+            newErrors.pincode = 'Pincode is required';
+         } else if (!pincodeRegex.test(formData.pincode)) {
+            newErrors.pincode = 'Please enter a valid 6-digit pincode';
+         }
       }
 
       setErrors(newErrors);
@@ -234,7 +240,8 @@ export const Checkout: React.FC = () => {
          const checkoutResponse = await orderService.initiateCheckout(
             items,
             shippingAddress,
-            appliedCoupon?.code
+            appliedCoupon?.code,
+            deliveryMethod
          );
 
          const { razorpayOrderId, amount, key, mongoOrderId, orderId } = checkoutResponse.data;
@@ -342,7 +349,8 @@ export const Checkout: React.FC = () => {
          const response = await orderService.createOrder(
             items,
             shippingAddress,
-            appliedCoupon?.code
+            appliedCoupon?.code,
+            deliveryMethod
          );
 
          // 4. Success!
@@ -463,92 +471,157 @@ export const Checkout: React.FC = () => {
                      <div className="bg-white p-8 md:p-10 rounded-[32px] border border-neutral-100 shadow-xl shadow-neutral-100/50">
                         <div className="flex items-center gap-4 mb-8 pb-6 border-b border-neutral-100">
                            <div className="w-12 h-12 rounded-full bg-brand-50 text-brand flex items-center justify-center">
-                              <MapPin size={24} />
+                              {deliveryMethod === 'shipping' ? <MapPin size={24} /> : <Store size={24} />}
                            </div>
                            <div>
-                              <h2 className="text-2xl font-bold text-neutral-900">Delivery Address</h2>
-                              <p className="text-neutral-500 text-sm">Where should we deliver your premium nuts?</p>
+                              <h2 className="text-2xl font-bold text-neutral-900">Delivery Method</h2>
+                              <p className="text-neutral-500 text-sm">Choose how you want to receive your order.</p>
                            </div>
                         </div>
 
-                        {/* Saved Addresses Selection - Compact Inline */}
-                        {savedAddresses.length > 0 && (
-                           <div className="mb-6">
-                              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3 block">
-                                 Use Saved Address
-                              </label>
-                              <div className="flex flex-wrap gap-2">
-                                 {savedAddresses.map((addr: any) => {
-                                    const isSelected = selectedAddressId === addr.id || selectedAddressId === addr._id;
-                                    const label = addr.label || addr.type || 'Address';
-                                    const street = addr.address || addr.street || '';
-                                    const location = `${addr.city} - ${addr.pincode || addr.zip}`;
+                        {/* Delivery Method Toggle */}
+                        <div className="grid grid-cols-2 gap-4 mb-8 p-1 bg-neutral-100 rounded-2xl">
+                           <button
+                              type="button"
+                              onClick={() => setDeliveryMethod('shipping')}
+                              className={`flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${deliveryMethod === 'shipping'
+                                 ? 'bg-white text-brand shadow-sm'
+                                 : 'text-neutral-500 hover:text-neutral-700'
+                                 }`}
+                           >
+                              <Truck size={20} />
+                              Home Delivery
+                           </button>
+                           <button
+                              type="button"
+                              onClick={() => setDeliveryMethod('pickup')}
+                              className={`flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${deliveryMethod === 'pickup'
+                                 ? 'bg-white text-brand shadow-sm'
+                                 : 'text-neutral-500 hover:text-neutral-700'
+                                 }`}
+                           >
+                              <Store size={20} />
+                              Pick Up from Store
+                           </button>
+                        </div>
 
-                                    return (
-                                       <button
-                                          key={addr.id || addr._id || street}
-                                          type="button"
-                                          onClick={() => handleSelectAddress(addr)}
-                                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${isSelected
-                                             ? 'border-brand bg-brand-50 text-brand'
-                                             : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand/50 hover:bg-neutral-50'
-                                             }`}
-                                       >
-                                          {isSelected ? (
-                                             <CheckCircle2 size={14} className="text-brand flex-shrink-0" />
-                                          ) : (
-                                             <MapPin size={14} className="text-neutral-400 flex-shrink-0" />
-                                          )}
-                                          <span className="font-semibold">{label}</span>
-                                          <span className="text-neutral-400">•</span>
-                                          <span className="truncate max-w-[150px]">{street}</span>
-                                          <span className="text-neutral-400 text-xs">({location})</span>
-                                          {addr.isDefault && (
-                                             <span className="text-[10px] font-bold text-success bg-success-bg px-1.5 py-0.5 rounded-full ml-1">
-                                                ★
-                                             </span>
-                                          )}
-                                       </button>
-                                    );
-                                 })}
+                        {deliveryMethod === 'shipping' ? (
+                           <>
+                              {/* Saved Addresses Selection - Compact Inline */}
+                              {savedAddresses.length > 0 && (
+                                 <div className="mb-6">
+                                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-3 block">
+                                       Use Saved Address
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                       {savedAddresses.map((addr: any) => {
+                                          const isSelected = selectedAddressId === addr.id || selectedAddressId === addr._id;
+                                          const label = addr.label || addr.type || 'Address';
+                                          const street = addr.address || addr.street || '';
+                                          const location = `${addr.city} - ${addr.pincode || addr.zip}`;
+
+                                          return (
+                                             <button
+                                                key={addr.id || addr._id || street}
+                                                type="button"
+                                                onClick={() => handleSelectAddress(addr)}
+                                                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${isSelected
+                                                   ? 'border-brand bg-brand-50 text-brand'
+                                                   : 'border-neutral-200 bg-white text-neutral-700 hover:border-brand/50 hover:bg-neutral-50'
+                                                   }`}
+                                             >
+                                                {isSelected ? (
+                                                   <CheckCircle2 size={14} className="text-brand flex-shrink-0" />
+                                                ) : (
+                                                   <MapPin size={14} className="text-neutral-400 flex-shrink-0" />
+                                                )}
+                                                <span className="font-semibold">{label}</span>
+                                                <span className="text-neutral-400">•</span>
+                                                <span className="truncate max-w-[150px]">{street}</span>
+                                                <span className="text-neutral-400 text-xs">({location})</span>
+                                                {addr.isDefault && (
+                                                   <span className="text-[10px] font-bold text-success bg-success-bg px-1.5 py-0.5 rounded-full ml-1">
+                                                      ★
+                                                   </span>
+                                                )}
+                                             </button>
+                                          );
+                                       })}
+                                    </div>
+                                 </div>
+                              )}
+
+                              <div className="space-y-8 animate-fade-in">
+                                 <div className="space-y-2">
+                                    <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Street Address <span className="text-error">*</span></label>
+                                    <div className="relative">
+                                       <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.address ? 'text-error' : 'text-neutral-400'}`}>
+                                          <Home size={20} />
+                                       </div>
+                                       <input type="text" name="address" value={formData.address} onChange={handleChange} className={getInputClass('address', true)} placeholder="Flat No, Building, Street Name" />
+                                    </div>
+                                    {errors.address && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.address}</p>}
+                                 </div>
+                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                    <div className="space-y-2">
+                                       <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Pincode <span className="text-error">*</span></label>
+                                       <div className="relative">
+                                          <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.pincode ? 'text-error' : 'text-neutral-400'}`}>
+                                             <Truck size={20} />
+                                          </div>
+                                          <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={getInputClass('pincode', true)} placeholder="400001" maxLength={6} />
+                                       </div>
+                                       {errors.pincode && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.pincode}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                       <label className="text-sm font-bold text-neutral-700 ml-1 uppercase tracking-wider">City <span className="text-error">*</span></label>
+                                       <input type="text" name="city" value={formData.city} onChange={handleChange} className={getInputClass('city')} placeholder="Mumbai" />
+                                       {errors.city && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.city}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                       <label className="text-sm font-bold text-neutral-700 ml-1 uppercase tracking-wider">State <span className="text-error">*</span></label>
+                                       <input type="text" name="state" value={formData.state} onChange={handleChange} className={getInputClass('state')} placeholder="Maharashtra" />
+                                       {errors.state && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.state}</p>}
+                                    </div>
+                                 </div>
+                              </div>
+                           </>
+                        ) : (
+                           <div className="bg-neutral-50 rounded-2xl p-6 border border-neutral-200 animate-slide-up">
+                              <div className="flex items-start gap-4">
+                                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-brand border border-neutral-100 shadow-sm shrink-0">
+                                    <MapPin size={24} />
+                                 </div>
+                                 <div className="space-y-4">
+                                    <div>
+                                       <h3 className="font-bold text-lg text-neutral-900 mb-2">Mahindra Cashew Products</h3>
+                                       <p className="text-neutral-600">Main Road, Garudabhadra Village & Post</p>
+                                       <p className="text-neutral-600">Vajrapukotturu Mandal, Srikakulam</p>
+                                       <p className="text-neutral-600">Andhra Pradesh - 532222, India</p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2 pt-2">
+                                       <div className="flex items-center gap-2 text-neutral-600">
+                                          <Phone size={16} className="text-brand" />
+                                          <span>+91 94408 29165</span>
+                                          <span className="text-xs text-neutral-400">(Mon-Sat, 9am - 6pm)</span>
+                                       </div>
+                                       <div className="flex items-center gap-2 text-neutral-600">
+                                          <div className="w-4 flex justify-center"><span className="text-brand">@</span></div>
+                                          <span className="break-all">Mahindracashewproducts@gmail.com</span>
+                                       </div>
+                                    </div>
+
+                                    <div className="flex gap-2 pt-2">
+                                       <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">Open Now</span>
+                                    </div>
+                                    <p className="text-sm text-neutral-500 mt-2 pt-4 border-t border-neutral-200">
+                                       Instructions: Please show your Order ID at the counter to collect your package.
+                                    </p>
+                                 </div>
                               </div>
                            </div>
                         )}
-
-                        <div className="space-y-8">
-                           <div className="space-y-2">
-                              <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Street Address <span className="text-error">*</span></label>
-                              <div className="relative">
-                                 <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.address ? 'text-error' : 'text-neutral-400'}`}>
-                                    <Home size={20} />
-                                 </div>
-                                 <input type="text" name="address" value={formData.address} onChange={handleChange} className={getInputClass('address', true)} placeholder="Flat No, Building, Street Name" />
-                              </div>
-                              {errors.address && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.address}</p>}
-                           </div>
-                           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Pincode <span className="text-error">*</span></label>
-                                 <div className="relative">
-                                    <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.pincode ? 'text-error' : 'text-neutral-400'}`}>
-                                       <Truck size={20} />
-                                    </div>
-                                    <input type="text" name="pincode" value={formData.pincode} onChange={handleChange} className={getInputClass('pincode', true)} placeholder="400001" maxLength={6} />
-                                 </div>
-                                 {errors.pincode && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.pincode}</p>}
-                              </div>
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-neutral-700 ml-1 uppercase tracking-wider">City <span className="text-error">*</span></label>
-                                 <input type="text" name="city" value={formData.city} onChange={handleChange} className={getInputClass('city')} placeholder="Mumbai" />
-                                 {errors.city && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.city}</p>}
-                              </div>
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-neutral-700 ml-1 uppercase tracking-wider">State <span className="text-error">*</span></label>
-                                 <input type="text" name="state" value={formData.state} onChange={handleChange} className={getInputClass('state')} placeholder="Maharashtra" />
-                                 {errors.state && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.state}</p>}
-                              </div>
-                           </div>
-                        </div>
                      </div>
                   </form>
                </div>

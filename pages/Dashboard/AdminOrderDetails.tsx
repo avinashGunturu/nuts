@@ -15,7 +15,8 @@ import {
    MessageCircle,
    AlertCircle,
    Loader2,
-   XCircle
+   XCircle,
+   Store
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { orderService } from '../../services/orderService';
@@ -425,15 +426,28 @@ export const AdminOrderDetails: React.FC = () => {
                   </div>
                </div>
 
-               {/* Shipping Info Card */}
+               {/* Shipping/Pickup Info Card */}
                <div className="bg-white rounded-[40px] border border-neutral-100 shadow-sm p-8">
                   <h3 className="text-lg font-bold text-neutral-900 mb-6 flex items-center gap-3">
-                     <MapPin size={20} className="text-brand" /> Shipping Info
+                     {order.deliveryMethod === 'pickup' ? <Store size={20} className="text-brand" /> : <MapPin size={20} className="text-brand" />}
+                     {order.deliveryMethod === 'pickup' ? 'Pickup Information' : 'Shipping Info'}
                   </h3>
 
                   <div className="space-y-6">
+                     {order.deliveryMethod === 'pickup' && (
+                        <div className="bg-brand-50 p-4 rounded-2xl mb-4 border border-brand-100">
+                           <p className="text-xs font-bold text-brand uppercase tracking-widest mb-1 flex items-center gap-2">
+                              <Store size={14} /> Store Pickup Order
+                           </p>
+                           <p className="text-sm text-neutral-600">
+                              Customer will pick up from the store address below.
+                           </p>
+                        </div>
+                     )}
                      <div>
-                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">Delivery Address</p>
+                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">
+                           {order.deliveryMethod === 'pickup' ? 'Store Address' : 'Delivery Address'}
+                        </p>
                         <p className="text-sm font-medium text-neutral-700 leading-relaxed">
                            {order.shippingAddress?.street || 'N/A'}<br />
                            {order.shippingAddress?.city}, {order.shippingAddress?.state}<br />

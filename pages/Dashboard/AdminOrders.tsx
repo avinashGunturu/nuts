@@ -14,7 +14,8 @@ import {
    XCircle,
    Loader2,
    Package,
-   ExternalLink
+   ExternalLink,
+   Store
 } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { orderService, Order } from '../../services/orderService';
@@ -27,6 +28,7 @@ export const AdminOrders: React.FC = () => {
    // Filters
    const [searchTerm, setSearchTerm] = useState('');
    const [statusFilter, setStatusFilter] = useState('');
+   const [deliveryFilter, setDeliveryFilter] = useState('');
    const [page, setPage] = useState(1);
    const [pagination, setPagination] = useState({ total: 0, pages: 1, limit: 20 });
 
@@ -58,6 +60,7 @@ export const AdminOrders: React.FC = () => {
             page,
             limit: 20,
             status: statusFilter || undefined,
+            deliveryMethod: deliveryFilter || undefined,
             orderId: searchTerm || undefined
          });
          setOrders(response.orders);
@@ -82,7 +85,7 @@ export const AdminOrders: React.FC = () => {
 
    useEffect(() => {
       fetchOrders();
-   }, [page, statusFilter]);
+   }, [page, statusFilter, deliveryFilter]);
 
    // Debounced search
    useEffect(() => {
@@ -184,8 +187,24 @@ export const AdminOrders: React.FC = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                />
             </div>
-            <div className="flex gap-3 overflow-x-auto no-scrollbar">
+            <div className="flex gap-4 items-center">
                <div className="bg-neutral-100 p-1 rounded-2xl flex gap-1">
+                  {['', 'pickup'].map(method => (
+                     <button
+                        key={method}
+                        onClick={() => { setDeliveryFilter(method); setPage(1); }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${deliveryFilter === method
+                           ? 'bg-white text-neutral-900 shadow-sm'
+                           : 'text-neutral-500 hover:text-neutral-900'
+                           }`}
+                     >
+                        {method === '' && 'All'}
+                        {method === 'pickup' && <><Store size={14} /> Pickup</>}
+                     </button>
+                  ))}
+               </div>
+               <div className="h-8 w-[1px] bg-neutral-200 mx-2"></div>
+               <div className="bg-neutral-100 p-1 rounded-2xl flex gap-1 overflow-x-auto no-scrollbar">
                   {statuses.map(status => (
                      <button
                         key={status}
@@ -228,6 +247,7 @@ export const AdminOrders: React.FC = () => {
                               <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Customer</th>
                               <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Date</th>
                               <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Total Amount</th>
+                              <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Method</th>
                               <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Payment</th>
                               <th className="px-6 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">Status</th>
                               <th className="px-10 py-5 text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em] text-right">Actions</th>
@@ -254,6 +274,17 @@ export const AdminOrders: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-5">
                                        <span className="text-sm font-bold text-neutral-900">₹{order.finalAmount?.toLocaleString('en-IN') || 0}</span>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                       {order.deliveryMethod === 'pickup' ? (
+                                          <div className="flex items-center gap-2 text-brand font-medium text-xs bg-brand-50 px-2 py-1 rounded-lg w-fit">
+                                             <Store size={14} /> Pickup
+                                          </div>
+                                       ) : (
+                                          <div className="flex items-center gap-2 text-neutral-600 font-medium text-xs bg-neutral-100 px-2 py-1 rounded-lg w-fit">
+                                             <Truck size={14} /> Delivery
+                                          </div>
+                                       )}
                                     </td>
                                     <td className="px-6 py-5">
                                        <div className="flex items-center gap-2">
