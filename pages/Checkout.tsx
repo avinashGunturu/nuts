@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, MapPin, Phone, User, Home, ShieldCheck, ShoppingBag, AlertCircle, CheckCircle2, Truck, Lock, Tag, X, Loader2, Store } from 'lucide-react';
+import { ArrowLeft, CreditCard, MapPin, Phone, User, Home, ShieldCheck, ShoppingBag, AlertCircle, CheckCircle2, Truck, Lock, Tag, X, Loader2, Store, Gift } from 'lucide-react';
 import { orderService, CartValidationItem } from '../services/orderService';
 
 // Declare Razorpay on window object
@@ -54,6 +54,86 @@ export const Checkout: React.FC = () => {
 
    // Delivery Method
    const [deliveryMethod, setDeliveryMethod] = useState<'shipping' | 'pickup'>('shipping');
+
+   // Shipping fee state
+   const [shippingFee, setShippingFee] = useState(0);
+   const [shippingLoading, setShippingLoading] = useState(false);
+   const [shippingError, setShippingError] = useState('');
+   const [estimatedDays, setEstimatedDays] = useState('');
+   const [courierName, setCourierName] = useState('');
+   const [isServiceable, setIsServiceable] = useState<boolean | null>(null);
+   const [isFreeShipping, setIsFreeShipping] = useState(false);
+   const [freeShippingThreshold, setFreeShippingThreshold] = useState(0);
+   const [shippingInfo, setShippingInfo] = useState<any>(null);
+   const shippingDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
+   // Helper: parse weight string to kg (e.g., "250g" -> 0.25, "1kg" -> 1.0)
+   const parseWeightToKg = (weightStr: string): number => {
+      const lower = weightStr.toLowerCase().trim();
+      const num = parseFloat(lower);
+      if (isNaN(num)) return 0.5; // fallback
+      if (lower.includes('kg')) return num;
+      if (lower.includes('g')) return num / 1000;
+      return num; // assume kg if no unit
+   };
+
+   // Calculate total cart weight in kg
+   const totalCartWeight = cart.reduce((total, item) => {
+      return total + parseWeightToKg(item.selectedWeight || '500g') * item.quantity;
+   }, 0) || 0.5; // minimum 0.5kg
+
+   // Check shipping rate when pincode changes (debounced)
+   const checkShipping = useCallback(async (pincode: string) => {
+      if (!/^\d{6}$/.test(pincode) || deliveryMethod !== 'shipping') return;
+
+      setShippingLoading(true);
+      setShippingError('');
+      try {
+         const result = await orderService.checkShippingRate(pincode, totalCartWeight, cartTotal);
+         const data = result.data;
+         setIsServiceable(data.serviceable);
+         setShippingFee(data.shippingFee);
+         setEstimatedDays(data.estimatedDays);
+         setCourierName(data.courierName);
+         setIsFreeShipping(data.freeShipping);
+         setFreeShippingThreshold(data.freeShippingThreshold);
+         setShippingInfo(data.shippingInfo);
+      } catch (err: any) {
+         setShippingError(err.message || 'Failed to check shipping');
+         setIsServiceable(false);
+         setShippingFee(0);
+         setShippingInfo(null);
+      } finally {
+         setShippingLoading(false);
+      }
+   }, [deliveryMethod, totalCartWeight, cartTotal]);
+
+   useEffect(() => {
+      if (deliveryMethod === 'pickup') {
+         setShippingFee(0);
+         setIsFreeShipping(false);
+         setIsServiceable(null);
+         setShippingError('');
+         setShippingInfo(null);
+         return;
+      }
+
+      if (shippingDebounceRef.current) clearTimeout(shippingDebounceRef.current);
+
+      if (/^\d{6}$/.test(formData.pincode)) {
+         shippingDebounceRef.current = setTimeout(() => {
+            checkShipping(formData.pincode);
+         }, 800);
+      } else {
+         setShippingFee(0);
+         setIsServiceable(null);
+         setIsFreeShipping(false);
+      }
+
+      return () => {
+         if (shippingDebounceRef.current) clearTimeout(shippingDebounceRef.current);
+      };
+   }, [formData.pincode, deliveryMethod, checkShipping]);
 
    // Prefill contact details from user data on mount
    useEffect(() => {
@@ -163,7 +243,13 @@ export const Checkout: React.FC = () => {
 
    // Calculate final total
    const discountAmount = appliedCoupon?.discountAmount || 0;
-   const finalTotal = cartTotal - discountAmount;
+   const shippingCharge = deliveryMethod === 'shipping' ? shippingFee : 0;
+   const finalTotal = cartTotal - discountAmount + shippingCharge;
+
+   // Free shipping progress hint
+   const amountForFreeShipping = freeShippingThreshold > 0 && !isFreeShipping && deliveryMethod === 'shipping'
+      ? Math.max(0, freeShippingThreshold - (cartTotal - discountAmount))
+      : 0;
 
    // Apply coupon handler
    const handleApplyCoupon = async () => {
@@ -241,7 +327,9 @@ export const Checkout: React.FC = () => {
             items,
             shippingAddress,
             appliedCoupon?.code,
-            deliveryMethod
+            deliveryMethod,
+            shippingCharge,
+            shippingInfo
          );
 
          const { razorpayOrderId, amount, key, mongoOrderId, orderId } = checkoutResponse.data;
@@ -350,7 +438,9 @@ export const Checkout: React.FC = () => {
             items,
             shippingAddress,
             appliedCoupon?.code,
-            deliveryMethod
+            deliveryMethod,
+            shippingCharge,
+            shippingInfo
          );
 
          // 4. Success!
@@ -722,8 +812,35 @@ export const Checkout: React.FC = () => {
                         )}
                         <div className="flex justify-between text-neutral-600 text-lg">
                            <span>Shipping</span>
-                           <span className="text-green-600 font-bold">Free</span>
+                           {deliveryMethod === 'pickup' ? (
+                              <span className="text-green-600 font-bold">Free (Pickup)</span>
+                           ) : shippingLoading ? (
+                              <span className="flex items-center gap-2 text-neutral-400">
+                                 <Loader2 size={16} className="animate-spin" /> Checking...
+                              </span>
+                           ) : isServiceable === false ? (
+                              <span className="text-red-500 font-medium text-sm">Not serviceable</span>
+                           ) : isFreeShipping ? (
+                              <span className="text-green-600 font-bold flex items-center gap-1">
+                                 <Gift size={16} /> Free 🎉
+                              </span>
+                           ) : shippingFee > 0 ? (
+                              <span className="font-semibold">₹{shippingFee.toLocaleString('en-IN')}</span>
+                           ) : (
+                              <span className="text-neutral-400 text-sm">Enter pincode</span>
+                           )}
                         </div>
+                        {estimatedDays && deliveryMethod === 'shipping' && isServiceable && (
+                           <p className="text-sm text-neutral-400 text-right">
+                              Est. delivery: {estimatedDays} days{courierName ? ` via ${courierName}` : ''}
+                           </p>
+                        )}
+                        {amountForFreeShipping > 0 && deliveryMethod === 'shipping' && !shippingLoading && (
+                           <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-2 rounded-lg text-sm font-medium">
+                              <Gift size={14} />
+                              Add ₹{amountForFreeShipping.toLocaleString('en-IN')} more for free shipping!
+                           </div>
+                        )}
                      </div>
                      <div className="flex justify-between text-3xl font-bold text-neutral-900 mb-10">
                         <span>Total</span>
@@ -745,10 +862,11 @@ export const Checkout: React.FC = () => {
                            form="checkout-form"
                            size="lg"
                            className="w-full bg-brand hover:bg-brand-dark shadow-lg text-white text-lg py-5 group"
-                           isLoading={isPaying}
+                           isLoading={isPaying || shippingLoading}
+                           disabled={isPaying || shippingLoading || (!isServiceable && deliveryMethod === 'shipping')}
                         >
-                           {!isPaying && <CreditCard className="mr-3 group-hover:-translate-y-0.5 transition-transform" size={24} />}
-                           {isPaying ? 'Connecting to Razorpay...' : `Pay ₹${finalTotal.toLocaleString('en-IN')}`}
+                           {!isPaying && !shippingLoading && <CreditCard className="mr-3 group-hover:-translate-y-0.5 transition-transform" size={24} />}
+                           {isPaying ? 'Connecting to Razorpay...' : shippingLoading ? 'Calculating Shipping...' : `Pay ₹${finalTotal.toLocaleString('en-IN')}`}
                         </Button>
 
                         <div className="flex items-center justify-center gap-3">

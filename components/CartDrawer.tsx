@@ -125,7 +125,7 @@ export const CartDrawer: React.FC = () => {
               </div>
               <div className="flex justify-between text-neutral-600">
                 <span>Shipping</span>
-                <span className="text-green-600 font-medium">Free</span>
+                <span className="text-neutral-400 text-sm font-medium">Calculated at next step</span>
               </div>
               <div className="flex justify-between text-lg font-bold text-neutral-900 pt-3 border-t border-neutral-200">
                 <span>Total</span>

@@ -128,12 +128,12 @@ export const Orders: React.FC = () => {
                </tr>
                ${order.couponApplied ? `
                <tr>
-                  <td colspan="4" style="color: green;">Discount</td>
-                  <td style="text-align: right; color: green;">-₹${(order.totalAmount - order.finalAmount)?.toLocaleString('en-IN')}</td>
+                  <td colspan="4" style="color: green;">Discount (Code: ${order.couponApplied.code})</td>
+                  <td style="text-align: right; color: green;">-₹${(order.totalAmount + (order.shippingFee || 0) - order.finalAmount)?.toLocaleString('en-IN')}</td>
                </tr>` : ''}
                <tr>
                   <td colspan="4">Shipping</td>
-                  <td style="text-align: right; color: green;">Free</td>
+                  <td style="text-align: right; ${order.shippingFee === 0 ? 'color: green;' : ''}">${order.shippingFee === 0 ? 'Free' : '₹' + order.shippingFee?.toLocaleString('en-IN')}</td>
                </tr>
                <tr class="total-row">
                   <td colspan="4" class="total-amount">Total Amount</td>
@@ -281,6 +281,27 @@ export const Orders: React.FC = () => {
                         </div>
                       </div>
                     ))}
+
+                    {order.shippingInfo && (
+                      <div className="mt-6 pt-6 border-t border-neutral-100 flex flex-wrap gap-8 text-sm bg-neutral-50/50 p-4 rounded-2xl">
+                        <div>
+                          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Courier Partner</p>
+                          <p className="font-bold text-neutral-900 flex items-center gap-2"><Truck size={14} className="text-brand" /> {order.shippingInfo.courierName}</p>
+                        </div>
+                        {order.shippingInfo.trackingId && (
+                          <div>
+                            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Tracking ID</p>
+                            <p className="font-bold text-brand">{order.shippingInfo.trackingId}</p>
+                          </div>
+                        )}
+                        {order.shippingInfo.etd && (
+                          <div>
+                            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Estimated Delivery</p>
+                            <p className="font-bold text-neutral-900">{order.shippingInfo.etd}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

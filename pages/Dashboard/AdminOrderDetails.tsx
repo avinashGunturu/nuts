@@ -146,12 +146,12 @@ export const AdminOrderDetails: React.FC = () => {
                   </tr>
                   ${order.couponApplied ? `
                   <tr>
-                     <td colspan="4" style="color: green;">Discount</td>
-                     <td style="text-align: right; color: green;">-₹${(order.totalAmount - order.finalAmount)?.toLocaleString('en-IN')}</td>
+                     <td colspan="4" style="color: green;">Discount (Code: ${order.couponApplied.code})</td>
+                     <td style="text-align: right; color: green;">-₹${(order.totalAmount + (order.shippingFee || 0) - order.finalAmount)?.toLocaleString('en-IN')}</td>
                   </tr>` : ''}
                   <tr>
                      <td colspan="4">Shipping</td>
-                     <td style="text-align: right; color: green;">Free</td>
+                     <td style="text-align: right; ${order.shippingFee === 0 ? 'color: green;' : ''}">${order.shippingFee === 0 ? 'Free' : '₹' + order.shippingFee?.toLocaleString('en-IN')}</td>
                   </tr>
                   <tr class="total-row">
                      <td colspan="4" class="total-amount">Total Amount</td>
@@ -239,7 +239,7 @@ export const AdminOrderDetails: React.FC = () => {
    }
 
    const subtotal = order.totalAmount || 0;
-   const discount = order.couponApplied ? (subtotal - order.finalAmount) : 0;
+   const discount = order.couponApplied ? (subtotal + (order.shippingFee || 0) - order.finalAmount) : 0;
    const total = order.finalAmount || 0;
    const payment = getPaymentStatus();
 
@@ -318,15 +318,26 @@ export const AdminOrderDetails: React.FC = () => {
                         <span>Subtotal</span>
                         <span>₹{subtotal.toLocaleString('en-IN')}</span>
                      </div>
-                     {discount > 0 && (
+                     {discount > 0 && order.couponApplied && (
                         <div className="flex justify-between text-success font-medium">
-                           <span>Discount {order.couponApplied?.code ? `(${order.couponApplied.code})` : ''}</span>
+                           <span>Discount (Code: {order.couponApplied.code})</span>
                            <span>-₹{discount.toLocaleString('en-IN')}</span>
                         </div>
                      )}
                      <div className="flex justify-between text-neutral-600 font-medium">
                         <span>Shipping</span>
-                        <span className="text-success">Free</span>
+                        <div className="text-right">
+                           {order.shippingFee === 0 ? (
+                              <span className="text-success block">Free</span>
+                           ) : (
+                              <span className="block">₹{order.shippingFee?.toLocaleString('en-IN')}</span>
+                           )}
+                           {order.shippingInfo?.estimatedDays && order.deliveryMethod === 'shipping' && (
+                              <span className="text-sm text-neutral-400 block mt-1">
+                                 Est. delivery: {order.shippingInfo.estimatedDays} days{order.shippingInfo.courierName ? ` via ${order.shippingInfo.courierName}` : ''}
+                              </span>
+                           )}
+                        </div>
                      </div>
                      <div className="flex justify-between text-neutral-900 text-2xl font-bold pt-4">
                         <span>Total Amount</span>
@@ -454,6 +465,32 @@ export const AdminOrderDetails: React.FC = () => {
                            {order.shippingAddress?.zip}
                         </p>
                      </div>
+
+                     {order.shippingInfo && (
+                        <div className="mt-6 pt-6 border-t border-neutral-100">
+                           <h4 className="text-sm font-bold text-neutral-900 mb-4 flex items-center gap-2">
+                              <Truck size={16} className="text-brand" /> Courier Details
+                           </h4>
+                           <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                              <div>
+                                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Courier Name</p>
+                                 <p className="text-sm font-bold text-neutral-700 drop-shadow-sm">{order.shippingInfo.courierName}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Tracking ID</p>
+                                 <p className="text-sm font-bold text-brand">{order.shippingInfo.trackingId || 'Pending'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Est. Delivery</p>
+                                 <p className="text-sm font-bold text-neutral-700">{order.shippingInfo.etd || 'N/A'}</p>
+                              </div>
+                              <div>
+                                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Total Charge</p>
+                                 <p className="text-sm font-bold text-neutral-700">₹{order.shippingInfo.totalCharge}</p>
+                              </div>
+                           </div>
+                        </div>
+                     )}
                   </div>
                </div>
 

@@ -26,6 +26,8 @@ export const API_CONFIG = {
         TRANSACTIONS_LIST: '/transactions/list',
         TRANSACTIONS_STATS: '/transactions/stats',
         BANNER: '/banner',
+        SHIPPING_CHECK: '/shipping/check',
+        SETTINGS: '/settings',
     }
 };
 

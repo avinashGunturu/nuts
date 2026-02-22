@@ -59,7 +59,9 @@ export interface Order {
     }>;
     totalAmount: number;
     finalAmount: number;
-    couponApplied?: string;
+    shippingFee?: number;
+    shippingInfo?: any;
+    couponApplied?: any;
     status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
     shippingAddress: ShippingAddress;
     paymentInfo: {
@@ -141,7 +143,9 @@ export const orderService = {
         items: CartValidationItem[],
         shippingAddress: ShippingAddress,
         couponCode?: string,
-        deliveryMethod?: 'shipping' | 'pickup'
+        deliveryMethod?: 'shipping' | 'pickup',
+        shippingFee?: number,
+        shippingInfo?: any
     ): Promise<CheckoutInitiateResponse> => {
         try {
             const token = getAuthToken();
@@ -161,7 +165,9 @@ export const orderService = {
                         items,
                         shippingAddress,
                         ...(couponCode ? { couponCode } : {}),
-                        deliveryMethod
+                        deliveryMethod,
+                        shippingFee: shippingFee || 0,
+                        shippingInfo
                     })
                 }
             );
@@ -216,7 +222,9 @@ export const orderService = {
         items: CartValidationItem[],
         shippingAddress: ShippingAddress,
         couponCode?: string,
-        deliveryMethod?: 'shipping' | 'pickup'
+        deliveryMethod?: 'shipping' | 'pickup',
+        shippingFee?: number,
+        shippingInfo?: any
     ): Promise<{ success: boolean; message: string; data: { orderId: string; mongoOrderId: string; finalAmount: number } }> => {
         try {
             const token = getAuthToken();
@@ -236,7 +244,9 @@ export const orderService = {
                         items,
                         shippingAddress,
                         ...(couponCode ? { couponCode } : {}),
-                        deliveryMethod
+                        deliveryMethod,
+                        shippingFee: shippingFee || 0,
+                        shippingInfo
                     })
                 }
             );
@@ -399,6 +409,99 @@ export const orderService = {
                 throw new Error(result.message || 'Failed to update status');
             }
             return result.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Check shipping rate for a delivery pincode
+     */
+    checkShippingRate: async (pincode: string, weightKg: number, cartTotal: number): Promise<{
+        success: boolean;
+        data: {
+            serviceable: boolean;
+            shippingFee: number;
+            estimatedDays: string;
+            courierName: string;
+            freeShipping: boolean;
+            freeShippingThreshold: number;
+            shippingInfo?: any;
+        };
+    }> => {
+        try {
+            const params = new URLSearchParams({
+                pincode,
+                weight: String(weightKg),
+                cartTotal: String(cartTotal),
+            });
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SHIPPING_CHECK}?${params.toString()}`,
+                {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to check shipping rate');
+            }
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Get site settings (free shipping threshold, etc.)
+     */
+    getSettings: async (): Promise<{
+        success: boolean;
+        data: { freeShippingThreshold: number };
+    }> => {
+        try {
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SETTINGS}`,
+                { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to fetch settings');
+            }
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    /**
+     * Update site settings (admin only)
+     */
+    updateSettings: async (freeShippingThreshold: number): Promise<any> => {
+        try {
+            const token = getAuthToken();
+            if (!token) throw new Error('Authentication required');
+
+            const response = await fetch(
+                `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SETTINGS}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ freeShippingThreshold })
+                }
+            );
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to update settings');
+            }
+            return result;
         } catch (error) {
             throw error;
         }

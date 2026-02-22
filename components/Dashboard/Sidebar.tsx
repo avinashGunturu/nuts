@@ -15,7 +15,8 @@ import {
   Ticket,
   Megaphone,
   X,
-  Settings
+  Settings,
+  Truck
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { icon: MessageSquare, label: 'Messages', path: '/dashboard/contact-requests' },
   { icon: Ticket, label: 'Coupons', path: '/dashboard/coupons' },
   { icon: Megaphone, label: 'Banner', path: '/dashboard/banner' },
+  { icon: Truck, label: 'Shipping', path: '/dashboard/shipping-settings' },
   { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
 ];
 
