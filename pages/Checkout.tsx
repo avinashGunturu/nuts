@@ -21,6 +21,7 @@ export const Checkout: React.FC = () => {
    const [formData, setFormData] = useState({
       firstName: '',
       lastName: '',
+      email: '',
       phone: '',
       address: '',
       city: '',
@@ -147,6 +148,7 @@ export const Checkout: React.FC = () => {
             ...prev,
             firstName: firstName,
             lastName: lastName,
+            email: user.email || '',
             phone: user.phone?.replace('+91', '') || ''
          }));
          // Note: No auto-selection - user must click to select an address
@@ -205,6 +207,13 @@ export const Checkout: React.FC = () => {
 
       if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
       if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!formData.email.trim()) {
+         newErrors.email = 'Email is required';
+      } else if (!emailRegex.test(formData.email)) {
+         newErrors.email = 'Please enter a valid email address';
+      }
 
       if (!formData.phone.trim()) {
          newErrors.phone = 'Phone number is required';
@@ -329,7 +338,9 @@ export const Checkout: React.FC = () => {
             appliedCoupon?.code,
             deliveryMethod,
             shippingCharge,
-            shippingInfo
+            shippingInfo,
+            formData.email,
+            formData.phone
          );
 
          const { razorpayOrderId, amount, key, mongoOrderId, orderId } = checkoutResponse.data;
@@ -440,7 +451,9 @@ export const Checkout: React.FC = () => {
             appliedCoupon?.code,
             deliveryMethod,
             shippingCharge,
-            shippingInfo
+            shippingInfo,
+            formData.email,
+            formData.phone
          );
 
          // 4. Success!
@@ -545,6 +558,11 @@ export const Checkout: React.FC = () => {
                               <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} className={getInputClass('lastName')} placeholder="Doe" />
                               {errors.lastName && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.lastName}</p>}
                            </div>
+                        </div>
+                        <div className="space-y-2 mt-8">
+                           <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Email Address <span className="text-error">*</span></label>
+                           <input type="email" name="email" value={formData.email} onChange={handleChange} className={getInputClass('email')} placeholder="john@example.com" />
+                           {errors.email && <p className="text-error text-sm font-medium ml-1 flex items-center gap-1 animate-fade-in"><AlertCircle size={14} /> {errors.email}</p>}
                         </div>
                         <div className="space-y-2 mt-8">
                            <label className="text-sm font-bold text-neutral-700 uppercase tracking-wider ml-1">Phone Number <span className="text-error">*</span></label>

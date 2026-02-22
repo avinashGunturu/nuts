@@ -145,7 +145,9 @@ export const orderService = {
         couponCode?: string,
         deliveryMethod?: 'shipping' | 'pickup',
         shippingFee?: number,
-        shippingInfo?: any
+        shippingInfo?: any,
+        contactEmail?: string,
+        contactPhone?: string
     ): Promise<CheckoutInitiateResponse> => {
         try {
             const token = getAuthToken();
@@ -167,7 +169,9 @@ export const orderService = {
                         ...(couponCode ? { couponCode } : {}),
                         deliveryMethod,
                         shippingFee: shippingFee || 0,
-                        shippingInfo
+                        shippingInfo,
+                        contactEmail,
+                        contactPhone
                     })
                 }
             );
@@ -224,7 +228,9 @@ export const orderService = {
         couponCode?: string,
         deliveryMethod?: 'shipping' | 'pickup',
         shippingFee?: number,
-        shippingInfo?: any
+        shippingInfo?: any,
+        contactEmail?: string,
+        contactPhone?: string
     ): Promise<{ success: boolean; message: string; data: { orderId: string; mongoOrderId: string; finalAmount: number } }> => {
         try {
             const token = getAuthToken();
@@ -246,7 +252,9 @@ export const orderService = {
                         ...(couponCode ? { couponCode } : {}),
                         deliveryMethod,
                         shippingFee: shippingFee || 0,
-                        shippingInfo
+                        shippingInfo,
+                        contactEmail,
+                        contactPhone
                     })
                 }
             );
